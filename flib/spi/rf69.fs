@@ -162,6 +162,16 @@ decimal align
 
 : rf-sleep ( -- ) RF:M_SLEEP rf!mode ;  \ put radio module to sleep
 
+: rf-encrypt ( addr -- ) \ load 16 bytes as AES password, enable encryption
+  RF:AES 16 + RF:AES do  \ loop by register addr
+    dup c@ dup i rf!  \ write one, leave ( addr b )
+    if 1+ then  \ if b <> 0, advance addr
+    loop drop
+  RF:PCONF2 rf@ 1 or  RF:PCONF2 rf! ;
+
+: rf-deencrypt ( -- ) \ clear encryption
+  RF:PCONF2 rf@ $FE and  RF:PCONF2 rf! ;
+
 : rf-recv ( -- b )  \ check whether a packet has been received, return #bytes
   rf.mode @ RF:M_RX <> if
     0 rf.rssi !  0 rf.afc !
@@ -203,8 +213,17 @@ decimal align
 : rf-info ( -- )  \ display reception parameters as hex string
   rf.freq @ h.4 rf.group @ h.2 rf.rssi @ h.2 rf.lna @ h.2 rf.afc @ h.4 ;
 
-: rf-listen ( -- )  \ init RFM69 and report incoming packets until key press
-  rf-init cr
+: rf. ( -- )  \ print out all the RF69 registers
+  cr 4 spaces  base @ hex  16 0 do space i . loop  base !
+  $60 $00 do
+    cr
+    i h.2 ." :"
+    16 0 do  space
+      i j + ?dup if rf@ h.2 else ." --" then
+    loop
+  $10 +loop ;
+
+: rf-listen-i ( -- )  \ report incoming packets until key press
   0 rf.last !
   begin
     rf-recv ?dup if
@@ -216,18 +235,18 @@ decimal align
     then
   key? until ;
 
-: rf. ( -- )  \ print out all the RF69 registers
-  cr 4 spaces  base @ hex  16 0 do space i . loop  base !
-  $60 $00 do
-    cr
-    i h.2 ." :"
-    16 0 do  space
-      i j + ?dup if rf@ h.2 else ." --" then
-    loop
-  $10 +loop ;
+: rf-listen ( -- )  \ init RFM69 and then listen
+  rf-init cr   rf-listen-i ;
+
+: enckey c" beleampanchineto" ;  \ one byte wasted (count)
+: rf-listen-enc ( -- )  \ init RFM69 and then listen (encrypted version)
+  rf-init cr   enckey 1+ rf-encrypt   rf-listen-i ;
 
 : rf-txtest ( n -- )  \ send out a test packet with the number as ASCII chars
-  rf-init  16 rf-power  0 <# #s #> 0 rf-send ;
+  rf-init   16 rf-power   0 <# #s #> 0 rf-send ;
+
+: rf-txtest-enc ( n -- )  \ send out a test packet with the number as ASCII chars (encrypted version)
+  rf-init   16 rf-power   enckey 1+ rf-encrypt   0 <# #s #> 0 rf-send ;
 
 \ rf.
 \ rf-listen
