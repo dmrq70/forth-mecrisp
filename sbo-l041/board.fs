@@ -5,23 +5,12 @@ eraseflash
 compiletoflash
 ( board start: ) here dup hex.
 
-include ../flib/mecrisp/calltrace.fs
 include ../flib/mecrisp/cond.fs
-include ../flib/mecrisp/hexdump.fs
-include ../flib/stm32l0/io.fs
+include ../flib/mecrisp/hexdump-min.fs
+include ../flib/stm32l0/io-min.fs
 include ../flib/pkg/pins20.fs
-include ../flib/stm32l0/hal.fs
-include ../flib/stm32l0/adc.fs
-include ../flib/stm32l0/timer.fs
-include ../flib/stm32l0/pwm.fs
-\ include ../flib/stm32l0/i2c.fs
-include ../flib/stm32l0/sleep.fs
-
-\ PB8 variable ssel  \ can be changed at run time
-\ PB3 constant SCLK
-\ PB4 constant MISO
-\ PB5 constant MOSI
-\ include ../flib/stm32l0/spi.fs
+include ../flib/stm32l0/hal-min.fs
+include ../flib/stm32l0/sleep-min.fs
 
 PA1 constant LED \ sbo active low
 \ PB3 constant LED \ nucleo32 active high
@@ -36,8 +25,6 @@ PB1 constant BTN \ -1 pressed, 0 not
 
 : init ( -- )  \ board initialisation
   \ init  \ uses new uart init convention
-  ['] ct-irq irq-fault !  \ show call trace in unhandled exceptions
-  $00 hex.empty !  \ empty flash shows up as $00 iso $FF on these chips
   OMODE-PP LED io-mode!
   IMODE-FLOAT BTN io-mode!
 \ 16MHz ( set by Mecrisp on startup to get an accurate USART baud rate )

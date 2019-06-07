@@ -14,8 +14,11 @@ include ../flib/stm32l0/hal.fs
 include ../flib/stm32l0/adc.fs
 include ../flib/stm32l0/timer.fs
 include ../flib/stm32l0/pwm.fs
-include ../flib/stm32l0/i2c.fs
 include ../flib/stm32l0/sleep.fs
+
+\ potentially messes up PA0-PA5 as well
+: i2c-pafs $11000000 PB6 io-base GPIO.AFRL + ! ;
+include ../flib/stm32l0/i2c.fs
 
 PA15 variable ssel  \ can be changed at run time
 PB3 constant SCLK
