@@ -28,7 +28,7 @@ PB1 constant BTN \ -1 pressed, 0 not
   OMODE-PP LED io-mode!
   IMODE-FLOAT BTN io-mode!
 \ 16MHz ( set by Mecrisp on startup to get an accurate USART baud rate )
-  2 RCC-CCIPR !  \ set USART1 clock to HSI16, independent of sysclk
+  8 RCC-CCIPR !  \ set USART2 clock to HSI16, independent of sysclk (sbo uses USART2!!)
   1000 systick-hz
   led-on
   hello ." ok." cr
