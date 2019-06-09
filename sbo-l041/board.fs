@@ -35,7 +35,7 @@ PB1 constant BTN \ -1 pressed, 0 not
 ;
 
 : rx-connected? ( -- f )  \ true if RX is connected (and idle)
-  IMODE-LOW PA10 io-mode!  PA10 io@ 0<>  OMODE-AF-PP PA10 io-mode!
+  IMODE-LOW PA3 io-mode!  PA3 io@ 0<>  OMODE-AF-PP PA3 io-mode!
   dup if 1 ms serial-key? if serial-key drop then then \ flush any input noise
 ;
 
