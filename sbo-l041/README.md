@@ -15,3 +15,14 @@ flash left; adding spi+rf69+i2c leaves 2.5kB flash left.
   * LED = PA1, active low
   * BTN = PB1, pressed: -1
 
+## Low power
+
+On regular power-up, the boards takes about 5.5mA.  The LED takes about 1.5mA,
+lowering from 16MHz to 2.1MHz saves also about 1.5mA. (All on 5V through the
+regulator.)
+
+Trying low power sleep (waking up on LPTIMER), with the "factory" firmware,
+tested with `flib/stm32l0/sleep-extra.fs` code, I got cca 7uA consumption in
+sleep, with 5V source through the regulator (this is 11uA on 3.3V).
+Powering with 3.3V directly to the "battery" pin (back-powering the reg)
+asks for 6-8uA.
