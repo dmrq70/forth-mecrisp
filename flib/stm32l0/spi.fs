@@ -1,2 +1,2 @@
-include spi-min.fs
+include spi-faster.fs
 include spi-extra.fs
