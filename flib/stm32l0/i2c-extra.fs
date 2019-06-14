@@ -1,5 +1,19 @@
 \ hardware i2c driver / convenience functions
 
+$40005400 constant I2C1
+     I2C1 $00 + constant I2C1-CR1
+     I2C1 $04 + constant I2C1-CR2
+\    I2C1 $08 + constant I2C1-OAR1
+\    I2C1 $0C + constant I2C1-OAR2
+     I2C1 $10 + constant I2C1-TIMINGR
+\    I2C1 $14 + constant I2C1-TIMEOUTR
+     I2C1 $18 + constant I2C1-ISR
+     I2C1 $1C + constant I2C1-ICR
+\    I2C1 $20 + constant I2C1-PXCR
+     I2C1 $24 + constant I2C1-RXDR
+     I2C1 $28 + constant I2C1-TXDR
+
+
 : i2c? ( -- )
   I2C1
   cr ."       CR1 " dup @ hex. 4 +

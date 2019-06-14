@@ -1,5 +1,19 @@
 \ simple one-shot ADC / extras
 
+$40012400 constant ADC1
+    ADC1 $000 + constant ADC-ISR
+    ADC1 $004 + constant ADC-IER
+    ADC1 $008 + constant ADC-CR
+    ADC1 $00C + constant ADC-CFGR1
+    ADC1 $010 + constant ADC-CFGR2
+    ADC1 $014 + constant ADC-SMPR
+    ADC1 $020 + constant ADC-TR
+    ADC1 $028 + constant ADC-CHSELR
+    ADC1 $040 + constant ADC-DR
+    ADC1 $0B4 + constant ADC-CALFACT
+    ADC1 $308 + constant ADC-CCR
+
+
 : adc? ( -- )
   ADC1
   cr ."     ISR " dup @ hex. 4 +

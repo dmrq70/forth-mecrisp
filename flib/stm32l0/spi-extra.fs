@@ -1,5 +1,15 @@
 \ hardware SPI driver / convenience functions / more-byte-API
 
+$40013000 constant SPI1
+     SPI1 $00 + constant SPI1-CR1
+     SPI1 $04 + constant SPI1-CR2
+     SPI1 $08 + constant SPI1-SR
+     SPI1 $0C + constant SPI1-DR
+\    SPI1 $10 + constant SPI1-CRCPR
+\    SPI1 $14 + constant SPI1-RXCRCR
+\    SPI1 $18 + constant SPI1-TXCRCR
+
+
 : spi? ( -- )
   SPI1
   cr ."     CR1 " dup @ hex. 4 +

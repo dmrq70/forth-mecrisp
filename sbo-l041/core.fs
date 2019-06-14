@@ -11,13 +11,13 @@ include ../flib/stm32l0/adc-min.fs
 PA9  constant SCL
 PA10 constant SDA
 \ potentially messes up PA0-PA5 as well
-: i2c-pafs $110 PA9 io-base GPIO.AFRH + ! ;
+: i2c-pafs $110 PA9 io-base $24 + ! ;  \ (GPIO.AFRH)
 include ../flib/stm32l0/i2c-min.fs
 
-ssel  PA4 variable ssel
-SCLK  PA5 constant SCLK
-MISO  PA6 constant MISO
-MOSI  PA7 constant MOSI
+PA4 variable ssel
+PA5 constant SCLK
+PA6 constant MISO
+PA7 constant MOSI
 include ../flib/stm32l0/spi-min.fs
 \ rf69 rf-rssi needs LED
 include ../flib/spi/rf69-min.fs

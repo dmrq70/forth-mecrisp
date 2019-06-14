@@ -1,43 +1,30 @@
 \ simple one-shot ADC
 
-$40012400 constant ADC1
-    ADC1 $000 + constant ADC-ISR
-    ADC1 $004 + constant ADC-IER
-    ADC1 $008 + constant ADC-CR
-    ADC1 $00C + constant ADC-CFGR1
-    ADC1 $010 + constant ADC-CFGR2
-    ADC1 $014 + constant ADC-SMPR
-    ADC1 $020 + constant ADC-TR
-    ADC1 $028 + constant ADC-CHSELR
-    ADC1 $040 + constant ADC-DR
-    ADC1 $0B4 + constant ADC-CALFACT
-    ADC1 $308 + constant ADC-CCR
-
 : adc-calib ( -- )  \ perform an ADC calibration cycle
-  31 bit ADC-CR bis!  \ set ADCAL
-  begin 31 bit ADC-CR bit@ 0= until  \ wait until ADCAL is clear
+  31 bit $40012408 bis!  \ set ADCAL  (ADC-CR)
+  begin 31 bit $40012408 bit@ 0= until  \ wait until ADCAL is clear  (ADC-CR)
 ;
 
 : adc-once ( -- u )  \ read ADC value once
-  2 bit ADC-CR bis!  \ set ADSTART to start ADC
-  begin 2 bit ADC-ISR bit@ until  \ wait until EOC set
-  ADC-DR @ ;
+  2 bit $40012408 bis!  \ set ADSTART to start ADC  (ADC-CR)
+  begin 2 bit $40012400 bit@ until  \ wait until EOC set  (ADC-ISR)
+  $40012440 @ ;  \  (ADC-DR)
 
 : adc-init ( -- )  \ initialise ADC
 \ FIXME can't call this twice, recalibration will hang!
-  9 bit RCC-APB2ENR bis!  \ set ADCEN
-  adc-calib  1 ADC-CR !   \ perform calibration, then set ADEN to enable ADC
+  9 bit $40021034 bis!  \ set ADCEN  (RCC-APB2ENR)
+  adc-calib  1 $40012408 !   \ perform calibration, then set ADEN to enable ADC  (ADC-CR)
   adc-once drop ;
 
 : adc-deinit ( -- )  \ de-initialise ADC
-  1 bit ADC-CR bis! 9 bit RCC-APB2ENR bic! ;
+  1 bit $40012408 bis! 9 bit $40021034 bic! ;  \   (ADC-CR) (RCC-APB2ENR)
 
 : adc ( pin -- u )  \ read ADC value 2x to avoid chip erratum
 \ IMODE-ADC over io-mode!
-  io# bit ADC-CHSELR !  adc-once drop adc-once ;
+  io# bit $40012428 !  adc-once drop adc-once ;  \  (ADC-CHSELR)
 
 : adc-vcc ( -- mv )  \ measure current Vcc
-  22 bit ADC-CCR bis!  ADC-SMPR @  %111 ADC-SMPR !
+  22 bit $40012708 bis!  $40012414 @  %111 $40012414 !  \  (ADC-CCR) (ADC-SMPR) (ADC-SMPR)
   $1FF80078 h@ 3000 * 17 adc /
-  swap  22 bit ADC-CCR bic!  ADC-SMPR ! ;
+  swap  22 bit $40012708 bic!  $40012414 ! ;  \  (ADC-CCR) (ADC-SMPR)
 
