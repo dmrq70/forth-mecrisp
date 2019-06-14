@@ -11,7 +11,7 @@ $2C constant TIM.ARR
   2- $400 * $40000000 + ;
 
 : timer-enabit ( n -- bit addr )  \ return bit and enable address for timer n
-  2- bit RCC-APB1ENR ;
+  2- bit $40021038 ;  \  (RCC-APB1ENR)
 
 : timer-init ( u n -- )  \ enable timer n as free-running with period u
   dup timer-enabit bis!  \ clock enable

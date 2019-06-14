@@ -10,6 +10,7 @@ include ../flib/stm32l0/io-min.fs
 include ../flib/pkg/pins20.fs
 include ../flib/stm32l0/hal-min.fs
 include ../flib/stm32l0/sleep-min.fs
+include ../flib/stm32l0/adc-min.fs
 
 PA1 constant LED \ sbo active low
 \ PB3 constant LED \ nucleo32 active high
@@ -17,6 +18,14 @@ PB1 constant BTN \ -1 pressed, 0 not
 
 : led-off LED ios! ;
 : led-on LED ioc! ;
+
+PA4 variable ssel
+PA5 constant SCLK
+PA6 constant MISO
+PA7 constant MOSI
+include ../flib/stm32l0/spi-min.fs
+\ rf69 rf-rssi needs LED
+include ../flib/spi/rf69-min.fs
 
 : hello ( -- ) flash-kb . ." KB <n041> " hwid hex.
   $8000 compiletoflash here -  flashvar-here compiletoram here -
