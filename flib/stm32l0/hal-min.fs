@@ -2,8 +2,6 @@
 \ adapted from mecrisp-stellaris 2.2.1a (GPL3)
 \ needs io.fs
 
-[ifndef] IO-PORTS  3 constant IO-PORTS  [then]  \ A..C
-
 : chipid ( -- u1 u2 u3 3 )  \ unique chip ID as N values on the stack
   $1FF80050 @ $1FF80054 @ $1FF80064 @ 3 ;
 : hwid ( -- u )  \ a "fairly unique" hardware ID as single 32-bit int

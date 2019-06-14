@@ -1,8 +1,5 @@
 \ hardware i2c driver / basic functions
 
-[ifndef] SCL  PB6 constant SCL  [then]
-[ifndef] SDA  PB7 constant SDA  [then]
-
 $40005400 constant I2C1
      I2C1 $00 + constant I2C1-CR1
      I2C1 $04 + constant I2C1-CR2

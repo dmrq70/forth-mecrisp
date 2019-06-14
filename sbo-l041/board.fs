@@ -5,7 +5,6 @@ eraseflash
 compiletoflash
 ( board start: ) here dup hex.
 
-include ../flib/mecrisp/cond.fs
 include ../flib/mecrisp/hexdump-min.fs
 include ../flib/stm32l0/io-min.fs
 include ../flib/pkg/pins20.fs

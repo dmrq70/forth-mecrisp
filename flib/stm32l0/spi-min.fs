@@ -1,10 +1,5 @@
 \ hardware SPI driver / basic functions
 
-[ifndef] ssel  PA4 variable ssel  [then]  \ can be changed at run time
-[ifndef] SCLK  PA5 constant SCLK  [then]
-[ifndef] MISO  PA6 constant MISO  [then]
-[ifndef] MOSI  PA7 constant MOSI  [then]
-
 $40013000 constant SPI1
      SPI1 $00 + constant SPI1-CR1
      SPI1 $04 + constant SPI1-CR2

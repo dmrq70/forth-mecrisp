@@ -14,7 +14,10 @@ PA10 constant SDA
 : i2c-pafs $110 PA9 io-base GPIO.AFRH + ! ;
 include ../flib/stm32l0/i2c-min.fs
 
-\ pins match jz4
+ssel  PA4 variable ssel
+SCLK  PA5 constant SCLK
+MISO  PA6 constant MISO
+MOSI  PA7 constant MOSI
 include ../flib/stm32l0/spi-min.fs
 \ rf69 rf-rssi needs LED
 include ../flib/spi/rf69-min.fs
