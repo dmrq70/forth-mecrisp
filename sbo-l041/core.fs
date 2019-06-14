@@ -4,7 +4,7 @@
 compiletoflash
 ( core start: ) here dup hex.
 
-\ include ../flib/stm32l0/adc.fs
+include ../flib/stm32l0/adc-min.fs
 \ include ../flib/stm32l0/timer.fs
 \ include ../flib/stm32l0/pwm.fs
 
