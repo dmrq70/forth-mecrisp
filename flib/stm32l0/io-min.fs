@@ -1,20 +1,5 @@
 \ I/O pin primitives
 
-$50000000 constant GPIO-BASE
-      $00 constant GPIO.MODER   \ Reset 0 Port Mode Register
-                                \   00=Input  01=Output  10=Alternate  11=Analog
-      $04 constant GPIO.OTYPER  \ Reset 0 Port Output type register
-                                \   (0) Push/Pull vs. (1) Open Drain
-      $08 constant GPIO.OSPEEDR \ Reset 0 Output Speed Register
-                                \   00=2 MHz  01=25 MHz  10=50 MHz  11=100 MHz
-      $0C constant GPIO.PUPDR   \ Reset 0 Pullup / Pulldown 
-                                \   00=none  01=Pullup  10=Pulldown
-      $10 constant GPIO.IDR     \ RO      Input Data Register
-      $14 constant GPIO.ODR     \ Reset 0 Output Data Register
-      $18 constant GPIO.BSRR    \ WO      Bit set/reset register
-      $20 constant GPIO.AFRL    \ Reset 0 Alternate function  low register
-      $24 constant GPIO.AFRH    \ Reset 0 Alternate function high register
-
 : bit ( u -- u )  \ turn a bit position into a single-bit mask
   1 swap lshift  1-foldable ;
 : bit! ( mask addr f -- )  \ set or clear specified bit(s)
@@ -29,11 +14,11 @@ $50000000 constant GPIO-BASE
 : io-port ( pin -- u )  \ convert pin to port number (A=0, B=1, etc)
   8 rshift  1-foldable ;
 : io-base ( pin -- addr )  \ convert pin to GPIO base address
-  $F00 and 2 lshift GPIO-BASE +  1-foldable ;
+  $F00 and 2 lshift $50000000 +  1-foldable ;  \ GPIO-BASE
 : io@ ( pin -- u )  \ get pin value (0 or -1)
-  dup io-base GPIO.IDR + @ swap io# rshift 1 and negate ;
+  dup io-base $10 + @ swap io# rshift 1 and negate ;  \ GPIO.IDR
 : ios! ( pin -- )  \ set pin to high
-  dup io-mask swap io-base GPIO.BSRR + ! ;
+  dup io-mask swap io-base $18 + ! ;  \ GPIO.BSRR
 : ioc! ( pin -- )  \ clear pin to low
   16 + ios! ;
 : io! ( f pin -- )  \ set pin value
@@ -68,10 +53,10 @@ $50000000 constant GPIO-BASE
   rot lshift or r> ! ;
 
 : io-mode! ( mode pin -- )  \ set the CNF and MODE bits for a pin
-  over          over GPIO.OSPEEDR io-config
-  over 2 rshift over GPIO.MODER   io-config
-  over 4 rshift over GPIO.PUPDR   io-config
+  over          over $08 io-config  \ GPIO.OSPEEDR
+  over 2 rshift over $00 io-config  \ GPIO.MODER
+  over 4 rshift over $0C io-config  \ GPIO.PUPDR
   \ open drain mode config
-  dup io-mask swap io-base GPIO.OTYPER +
+  dup io-mask swap io-base $04 +    \ GPIO.OTYPER
   ( mode mask addr ) rot %1000000 and bit! ;
 

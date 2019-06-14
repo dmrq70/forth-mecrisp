@@ -11,25 +11,6 @@
 : flash-pagesize ( addr - u )  \ return size of flash page at given address
   drop 128 ;
 
-$40010000 constant AFIO
-\    AFIO $4 + constant AFIO-MAPR
-
-$40013800 constant USART1
-   USART1 $C + constant USART1-BRR
-
-$40021000 constant RCC
-     RCC $00 + constant RCC-CR
-     RCC $04 + constant RCC-ICSCR
-     RCC $0C + constant RCC-CFGR
-     RCC $28 + constant RCC-APB1RSTR
-     RCC $30 + constant RCC-AHBENR
-     RCC $34 + constant RCC-APB2ENR
-     RCC $38 + constant RCC-APB1ENR
-     RCC $4C + constant RCC-CCIPR
-
-$40022000 constant FLASH
-   FLASH $00 + constant FLASH-ACR
-
 16000000  variable clock-hz  \ the system clock is 16 MHz after reset
 
 4096      variable us/cycle*2^16
@@ -39,52 +20,52 @@ $40022000 constant FLASH
   clock-hz @ swap / ;
 
 : hsi-on ( -- )  \ turn on internal 16 MHz clock, needed by ADC
-  0 bit RCC-CR bis!               \ set HSI16ON
-  begin 2 bit RCC-CR bit@ until   \ wait for HSI16RDYF
+  0 bit $40021000 bis!               \ set HSI16ON  (RCC-CR)
+  begin 2 bit $40021000 bit@ until   \ wait for HSI16RDYF  (RCC-CR)
 ;
 
 : hsi-wakeup ( -- )  \ wake up using the 16 MHz clock
-  15 bit RCC-CFGR bis! ;
+  15 bit $4002100C bis! ;  \   (RCC-CFGR)
 
 : only-msi ( -- )  \ turn off HSI16, this disables the console UART
-  8 bit RCC-CR ! ;
+  8 bit $40021000 ! ; \  (RCC-CR)
 
 : 65KHz ( -- )  \ set main clock to 65 KHz, assuming it was set to 2.1 MHz
-  %111 13 lshift RCC-ICSCR bic!  65536 clock-hz ! 
+  %111 13 lshift $40021004 bic!  65536 clock-hz !  \  (RCC-ICSCR)
   us/cycl-factor ;
 
 : 2.1MHz ( -- )  \ set the main clock to 2.1 MHz (MSI)
-  RCC-ICSCR dup @  %111 13 lshift bic  %101 13 lshift or  swap !  \ range 5
-  8 bit RCC-CR bis!               \ set MSION
-  begin 9 bit RCC-CR bit@ until   \ wait for MSIRDY
-  %00 RCC-CFGR !                  \ revert to MSI @ 2.1 MHz, no PLL
-  $101 RCC-CR !                   \ turn off HSE, and PLL
+  $40021004 dup @  %111 13 lshift bic  %101 13 lshift or  swap !  \ range 5  (RCC-ICSCR)
+  8 bit $40021000 bis!               \ set MSION  (RCC-CR)
+  begin 9 bit $40021000 bit@ until   \ wait for MSIRDY  (RCC-CR)
+  %00 $4002100C !                    \ revert to MSI @ 2.1 MHz, no PLL   (RCC-CFGR)
+  $101 $40021000 !                   \ turn off HSE, and PLL  (RCC-CR)
   2097000 clock-hz ! 
   us/cycl-factor ;
 
 : 16MHz ( -- )  \ set the main clock to 16 MHz (HSI)
   hsi-on
-  %01 RCC-CFGR !                  \ revert to HSI16, no PLL
-  1 RCC-CR !                      \ turn off MSI, HSE, and PLL
-  0 bit FLASH-ACR bic!            \ Set the flash latency to 0 WS
+  %01 $4002100C !                    \ revert to HSI16, no PLL   (RCC-CFGR)
+  1 $40021000 !                      \ turn off MSI, HSE, and PLL  (RCC-CR)
+  0 bit $40022000 bic!               \ Set the flash latency to 0 WS  (FLASH-ACR)
   16000000 clock-hz ! 
   us/cycl-factor ;
 
 : 32MHz ( -- )  \ set the main clock to 32 MHz, using the PLL
   hsi-on
-  %01 RCC-CFGR !                           \ revert to HSI16, no PLL, no prescalers
-  1 RCC-CR !                               \ turn off MSI, HSE, and PLL
+  %01 $4002100C !                             \ revert to HSI16, no PLL, no prescalers   (RCC-CFGR)
+  1 $40021000 !                               \ turn off MSI, HSE, and PLL  (RCC-CR)
   \ brute force already set to zero two lines above!
-  RCC-CFGR dup @ %1111 4 lshift bic swap ! \ RCC_CFGR_HPRE_NODIV
-  24 bit RCC-CR bic!                       \ clear RCC_CR_PLLON
-  begin 25 bit RCC-CR bit@ not until       \ wait for PLLRDY to clear
-  0 bit FLASH-ACR bis!                     \ Set the flash latency to 1 WS
-  16 bit RCC-CFGR bic!                     \ set PLL src HSI16
-  RCC-CFGR dup @ %1111 18 lshift bic %0001 18 lshift or swap ! \ set PLL mulitplier 4
-  RCC-CFGR dup @ %11 22 lshift bic %01 22 lshift or swap !     \ set PLL divisor 2
-  24 bit RCC-CR bis!                       \ set RCC_CR_PLLON
-  begin 25 bit RCC-CR bit@ until           \ wait for PLLRDY
-  RCC-CFGR dup @ %11 or swap !             \ set system clk source PLL
+  $4002100C dup @ %1111 4 lshift bic swap !   \ RCC_CFGR_HPRE_NODIV   (RCC-CFGR)
+  24 bit $40021000 bic!                       \ clear RCC_CR_PLLON  (RCC-CR)
+  begin 25 bit $40021000 bit@ not until       \ wait for PLLRDY to clear  (RCC-CR)
+  0 bit $40022000 bis!                        \ Set the flash latency to 1 WS  (FLASH-ACR)
+  16 bit $4002100C bic!                       \ set PLL src HSI16   (RCC-CFGR)
+  $4002100C dup @ %1111 18 lshift bic %0001 18 lshift or swap ! \ set PLL mulitplier 4   (RCC-CFGR)
+  $4002100C dup @ %11 22 lshift bic %01 22 lshift or swap !     \ set PLL divisor 2   (RCC-CFGR)
+  24 bit $40021000 bis!                       \ set RCC_CR_PLLON  (RCC-CR)
+  begin 25 bit $40021000 bit@ until           \ wait for PLLRDY  (RCC-CR)
+  $4002100C dup @ %11 or swap !               \ set system clk source PLL   (RCC-CFGR)
   32000000 clock-hz ! 
   us/cycl-factor ;
 

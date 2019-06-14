@@ -1,57 +1,28 @@
 \ support for fow-power sleep
 
-     RCC $48 + constant RCC-APB1SMENR
-     RCC $50 + constant RCC-CSR
-
-$40007C00 constant LPTIM1
-   LPTIM1 $00 + constant LPTIM-ISR
-   LPTIM1 $04 + constant LPTIM-ICR
-   LPTIM1 $08 + constant LPTIM-IER
-   LPTIM1 $0C + constant LPTIM-CFGR
-   LPTIM1 $10 + constant LPTIM-CR
-   LPTIM1 $14 + constant LPTIM-CMP
-   LPTIM1 $18 + constant LPTIM-ARR
-   LPTIM1 $1C + constant LPTIM-CNT
-
-$40007000 constant PWR
-      PWR $0 + constant PWR-CR
-      PWR $4 + constant PWR-CSR
-
-$40010400 constant EXTI
-     EXTI $00 + constant EXTI-IMR
-     EXTI $04 + constant EXTI-EMR
-\    EXTI $08 + constant EXTI-RTSR
-\    EXTI $0C + constant EXTI-FTSR
-\    EXTI $10 + constant EXTI-SWIER
-     EXTI $14 + constant EXTI-PR
-
-\ see https://developer.arm.com/docs/dui0662/latest/4-cortex-m0-peripherals/
-\                       43-system-control-block/436-system-control-register
-$E000ED10 constant SCR
-
 : lptim-init ( -- )  \ enable the low-power timer
-  0 bit RCC-CSR bis!              \ set LSION
-  begin 1 bit RCC-CSR bit@ until  \ wait for LSIRDY
-  %01 18 lshift RCC-CCIPR bis!    \ use LSI clock
-  31 bit RCC-APB1ENR bis!         \ enable LPTIM1
-  31 bit RCC-APB1SMENR bis!       \ also enable in sleep mode
-  %111 9 lshift LPTIM-CFGR !      \ 128 prescaler
-  0 bit LPTIM-CR bis!             \ set ENABLE
+  0 bit $40021048 bis!              \ set LSION  (RCC-CSR)
+  begin 1 bit $40021048 bit@ until  \ wait for LSIRDY  (RCC-CSR)
+  %01 18 lshift $4002104C bis!      \ use LSI clock  (RCC-CCIPR)
+  31 bit $40021030 bis!             \ enable LPTIM1  (RCC-APB1ENR)
+  31 bit $40021048 bis!             \ also enable in sleep mode  (RCC-APB1SMENR)
+  %111 9 lshift  !  $40007C0C       \ 128 prescaler  (LPTIM-CFGR)
+  0 bit $40007C10 bis!              \ set ENABLE  (LPTIM-CR)
   \ the following settings prepare for sleep mode
-  28 bit RCC-APB1ENR bis!         \ set PWREN
-  %1000000101 PWR-CR bis!         \ set ULP, CWUF, and LPSDSR
+  28 bit $40021038 bis!             \ set PWREN  (RCC-APB1ENR)
+  %1000000101 $40007000 bis!        \ set ULP, CWUF, and LPSDSR  (PWR-CR)
 ;
 
 : wfe ( -- )  \ WFE Opcode, enters sleep mode
   [ $BF20 h, ] inline ;
 
 : stop-freq ( u -- )  \ enter stop mode, will resume when LPTIMER fires
-  64 + 128 / LPTIM-ARR !                \ round and set LPTIMER count
-  1 bit LPTIM-CR bis!                   \ set SNGSTRT
-  1 bit LPTIM-IER bis!                  \ set ARRMIE
-  2 bit SCR bis!                        \ set SLEEPDEEP
-  begin wfe 1 bit LPTIM-ISR bit@ until  \ wait for ARRM
-  1 bit LPTIM-ICR bis!                  \ clear ARRM
-  2 bit SCR bic!                        \ clear SLEEPDEEP
+  64 + 128 / $40007C18 !                \ round and set LPTIMER count  (LPTIM-ARR)
+  1 bit $40007C10 bis!                  \ set SNGSTRT  (LPTIM-CR)
+  1 bit $40007C08 bis!                  \ set ARRMIE  (LPTIM-IER)
+  2 bit $E000ED10 bis!                  \ set SLEEPDEEP  (SCR)
+  begin wfe 1 bit $40007C00 bit@ until  \ wait for ARRM  (LPTIM-ISR)
+  1 bit $40007C04 bis!                  \ clear ARRM  (LPTIM-ICR)
+  2 bit $E000ED10 bic!                  \ clear SLEEPDEEP  (SCR)
 ;
 
