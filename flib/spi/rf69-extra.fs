@@ -25,12 +25,7 @@
 : rf-listen ( -- )  \ init RFM69 and then listen
   rf-init cr   rf-listen-i ;
 
-create enckey  \ same 16 bytes on all radios
-hex
-  656c6562 , 61706d61 , 6968636e , 6f74656e ,  \ \ beleampanchineto
-decimal align
-\ get the code with:
-\ echo -n 'beleampanchineto' | hexdump -e '"%08x , "' -e '"  \\\   "' -e '/1 "%_p"' -e '/16 "\n"' 
+: enckey s" beleampanchineto" drop ;
 
 : rf-listen-enc ( -- )  \ init RFM69 and then listen (encrypted version)
   rf-init cr   enckey rf-encrypt   rf-listen-i ;
