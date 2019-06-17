@@ -25,15 +25,21 @@
 : rf-listen ( -- )  \ init RFM69 and then listen
   rf-init cr   rf-listen-i ;
 
-: enckey c" beleampanchineto" ;  \ one byte wasted (count)
+create enckey  \ same 16 bytes on all radios
+hex
+  656c6562 , 61706d61 , 6968636e , 6f74656e ,  \ \ beleampanchineto
+decimal align
+\ get the code with:
+\ echo -n 'beleampanchineto' | hexdump -e '"%08x , "' -e '"  \\\   "' -e '/1 "%_p"' -e '/16 "\n"' 
+
 : rf-listen-enc ( -- )  \ init RFM69 and then listen (encrypted version)
-  rf-init cr   enckey 1+ rf-encrypt   rf-listen-i ;
+  rf-init cr   enckey rf-encrypt   rf-listen-i ;
 
 : rf-txtest ( n -- )  \ send out a test packet with the number as ASCII chars
   rf-init   16 rf-power   0 <# #s #> 0 rf-send ;
 
 : rf-txtest-enc ( n -- )  \ send out a test packet with the number as ASCII chars (encrypted version)
-  rf-init   16 rf-power   enckey 1+ rf-encrypt   0 <# #s #> 0 rf-send ;
+  rf-init   16 rf-power   enckey rf-encrypt   0 <# #s #> 0 rf-send ;
 
 \ rf.
 \ rf-listen
