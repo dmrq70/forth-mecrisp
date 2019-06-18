@@ -1,4 +1,5 @@
 \ simple one-shot ADC
+\ from jcw's embello
 
 : adc-calib ( -- )  \ perform an ADC calibration cycle
   31 bit $40012408 bis!  \ set ADCAL  (ADC-CR)

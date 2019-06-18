@@ -100,13 +100,6 @@ decimal align
   ( u ) 6 lshift RF:FRF 2+ rf!
   ;
 
-: rf-correct ( -- ) \ correct the freq based on the AFC measurement of the last packet
-  rf.afc @ 16 lshift 16 arshift 61 *         \ AFC correction applied in Hz
-  2 arshift                                  \ apply 1/4 of measured offset as correction
-  5000 over 0< if negate max else min then   \ don't apply more than 5khz
-  rf.freq @ + dup rf.freq ! rf-freq          \ apply correction
-  ;
-
 : rf-group ( u -- ) RF:SYN3 rf! ;  \ set the net group (1..250)
 
 : rf-check ( b -- )  \ check that the register can be accessed over SPI
