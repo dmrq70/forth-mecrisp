@@ -13,8 +13,6 @@ compiletoflash
    0 variable rf.mode  \ last set chip mode
    0 variable rf.last  \ flag used to fetch RSSI only once per packet
    0 variable rf.rssi  \ RSSI signal strength of last reception
-   0 variable rf.lna   \ Low Noise Amplifier setting (set by AGC)
-   0 variable rf.afc   \ Auto Frequency Control offset
   66 buffer:  rf.buf   \ buffer with last received packet data
 
   42 variable rf.group   \ network group (1..250)
@@ -114,7 +112,7 @@ decimal align
   rf.group @ rf-ini ;
 
 : rf-info ( -- )  \ display reception parameters as hex string
-  rf.group @ h.2 rf.rssi @ h.2 rf.lna @ h.2 rf.afc @ hex. ;
+  rf.group @ h.2 rf.rssi @ h.2 ;
 
 
 \ RX part
@@ -126,14 +124,12 @@ decimal align
   then ;
 
 \ rf-status fetches the IRQ1 reg, checks whether rx_sync is set and was not set
-\ in rf.last. If so, it saves rssi, lna, and afc values; and then updates rf.last.
+\ in rf.last. If so, it saves rssi value; and then updates rf.last.
 \ rf.last ensures that the info is grabbed only once per packet.
 : rf-status ( -- )  \ update status values on sync match
   $27 rf@  %1 and  rf.last @ <> if  \  (RF:IRQ1_SYNC @ RF:IRQ1)
     rf.last  %1 over xor!  @ if  \  (RF:IRQ1_SYNC)
       $24 rf@  rf.rssi !  \  (RF:RSSI)
-      $18 rf@  3 rshift  7 and  rf.lna !  \  (RF:LNA)
-      $1F rf@  8 lshift  $1F 1+ rf@  or rf.afc !  \  (RF:AFC)
     then
   then ;
 
@@ -141,7 +137,7 @@ decimal align
 
 : rf-recv ( -- b )  \ check whether a packet has been received, return #bytes
   rf.mode @ %10000 <> if  \  (RF:M_RX)
-    0 rf.rssi !  0 rf.afc !
+    0 rf.rssi !
     %10000 rf!mode  \  (RF:M_RX)
   else rf-timeout rf-status then
   $28 rf@  %10 and if  \  (RF:IRQ2_CRCOK @ RF:IRQ2)
@@ -150,10 +146,10 @@ decimal align
   else 0 then ;
 
 : rf-ack? ( ms -- b ) \ waits ms milliseconds for an ACK and returns #bytes recv'd
-  0 rf.rssi !  0 rf.afc !
+  0 rf.rssi !
   %10000 rf!mode  \  (RF:M_RX)
   0 do
-    rf-status \ capture rssi, afc etc.
+    rf-status \ capture rssi, etc.
     $28 rf@  %10 and if  \  (RF:IRQ2_CRCOK @ RF:IRQ2)
       $00 rf@ 66 min \ fetch length and limit  \ (RF:FIFO)
       rf.buf over rf-n@spi
