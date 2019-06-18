@@ -1,4 +1,5 @@
 \ hardware SPI driver / convenience functions / more-byte-API
+\ from jcw's embello
 
 $40013000 constant SPI1
      SPI1 $00 + constant SPI1-CR1

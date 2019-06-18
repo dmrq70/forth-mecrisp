@@ -1,4 +1,5 @@
 \ Hardware I2C driver for STM32F103.
+\ from jcw's embello
 \ Needs: ring.fs
 
 \ Define pins

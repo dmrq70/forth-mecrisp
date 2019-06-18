@@ -1,4 +1,5 @@
 \ base definitions for STM32L053 / extras
+\ from jcw's embello
 \ needs io-extra.fs
 
 $40010000 constant AFIO

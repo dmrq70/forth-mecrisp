@@ -1,4 +1,5 @@
 \ Serial flash memory SPI chip interface for WinBond W25Q16, etc.
+\ from jcw's embello
 \ uses spi words, assumes spi-init has been called
 
 : smem-cmd ( cmd -- )  +spi >spi ;

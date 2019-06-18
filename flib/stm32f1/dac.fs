@@ -1,4 +1,5 @@
 \ DAC output, software-driven, timer-driven, or DMA wavetable-driven
+\ from jcw's embello
 
 $40007400 constant DAC
      DAC $00 + constant DAC-CR

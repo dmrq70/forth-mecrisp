@@ -1,4 +1,5 @@
 \ Prompt by Glen Worstell
+\ from jcw's embello
 \ copied with minor mods from Mecrisp Stellaris "common/prompt.txt"
 
 \ printing in decimal

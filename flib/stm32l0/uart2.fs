@@ -1,4 +1,5 @@
 \ polled access to second UART (USART2)
+\ from jcw's embello
 
 [ifndef] TX2  PA2 constant TX2  [then]
 [ifndef] RX2  PA3 constant RX2  [then]

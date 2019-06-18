@@ -1,4 +1,5 @@
 \ this code is not in the stripped hal.fs used with USB
+\ from jcw's embello
 
 72000000 variable clock-hz  \ the system clock is 72 MHz for USB
 

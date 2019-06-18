@@ -1,4 +1,5 @@
 \ read out the HTU21D temperature/humidity sensor
+\ by flabbergast
 \ needs i2c
 
 [ifndef] HTU.ADDR  $40 constant HTU.ADDR  [then]

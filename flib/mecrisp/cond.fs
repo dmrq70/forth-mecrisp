@@ -1,4 +1,5 @@
 \ Conditional compilation
+\ from jcw's embello
 
 \ Idea similar to http://lars.nocrew.org/dpans/dpansa15.htm#A.15.6.2.2532
 

@@ -1,4 +1,5 @@
 \ simple one-shot ADC
+\ from jcw's embello
 
 $40012400 constant ADC1
     ADC1 $00 + constant ADC1-SR

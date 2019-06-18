@@ -1,4 +1,5 @@
 \ I/O pin primitives
+\ from jcw's embello
 
 $40010800 constant GPIO-BASE
       $00 constant GPIO.CRL   \ reset $44444444 port Conf Register Low

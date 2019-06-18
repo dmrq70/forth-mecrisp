@@ -1,4 +1,5 @@
 \ hardware SPI driver / basic functions
+\ based upon jcw's embello
 
 : +spi ( -- ) ssel @ ioc! ;  \ select SPI
 : -spi ( -- ) ssel @ ios! ;  \ deselect SPI

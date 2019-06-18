@@ -1,4 +1,5 @@
 \ hardware timers
+\ from jcw's embello
 
 $00 constant TIM.CR1
 $04 constant TIM.CR2

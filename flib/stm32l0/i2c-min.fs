@@ -1,4 +1,5 @@
 \ hardware i2c driver / basic functions
+\ from jcw's embello
 
 : i2c-init ( -- )  \ initialise I2C hardware
   OMODE-AF-OD SCL io-mode!

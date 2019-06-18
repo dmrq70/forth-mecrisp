@@ -1,4 +1,5 @@
 \ interrupt-based USART2 with input ring buffer
+\ from jcw's embello
 \ needs ring.fs
 \ needs uart2.fs
 

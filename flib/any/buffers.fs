@@ -1,4 +1,5 @@
 \ Helpers to work with character buffers
+\ from jcw's embello
 
 \ stack>buffer copies i bytes from the stack into a buffer
 : stack>buffer ( b1 b2 ... bi i c-addr -- c-addr len )

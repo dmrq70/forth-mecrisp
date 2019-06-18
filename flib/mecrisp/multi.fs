@@ -1,4 +1,5 @@
 \ cooperative multitasking
+\ from jcw's embello
 \ adapted from mecrisp-stellaris 2.2.1a (GPL3)
 
 \ configuration:

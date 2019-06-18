@@ -1,4 +1,5 @@
 \ hardware SPI driver / alternative basic functions: faster
+\ from jcw's embello
 
 [ifndef] ssel  PA4 variable ssel  [then]  \ can be changed at run time
 [ifndef] SCLK  PA5 constant SCLK  [then]

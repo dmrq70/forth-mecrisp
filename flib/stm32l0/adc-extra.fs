@@ -1,4 +1,5 @@
 \ simple one-shot ADC / extras
+\ from jcw's embello
 
 $40012400 constant ADC1
     ADC1 $000 + constant ADC-ISR

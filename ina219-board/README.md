@@ -4,6 +4,12 @@ A chinese clone of Maple Mini (with STM32F103CBT6) with an Adafruit
 INA219 breakout (also a chinese clone I think), to have a ready-made
 current measurement board. Put together on a stripboard.
 
+## Credits
+
+All code except ina219.fs comes from jcw's [embello].
+
+[embello]: https://git.jeelabs.org/jcw/embello
+
 ## Connectors
 
  - two screw connectors on the INA219 board which the current is

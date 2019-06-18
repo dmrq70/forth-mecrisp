@@ -1,4 +1,5 @@
 \ Simple support for unit tests.
+\ from jcw's embello
 
 -1 variable tests-OK
 : fail-tests 0 tests-OK ! ; \ used by assertions

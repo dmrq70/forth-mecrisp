@@ -1,4 +1,5 @@
 \ crc calculation
+\ from jcw's embello
 
 create crc16-table
 hex

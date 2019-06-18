@@ -1,4 +1,5 @@
 \ hardware timers
+\ from jcw's embello
 \ this only handles TIMER 2, 3, 6, and 7
 
 $00 constant TIM.CR1

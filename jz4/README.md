@@ -15,3 +15,8 @@ Powering with 3.3V directly to the "battery" pin asks for the 12-15uA of power
 very very low ground power, and doesn't seem to mind back-powering too much.
 Overall, this is pretty sweet.
 
+## Credits
+
+Most of the code here comes, one way or another, from jcw's [embello] repo.
+
+[embello]: https://git.jeelabs.org/jcw/embello

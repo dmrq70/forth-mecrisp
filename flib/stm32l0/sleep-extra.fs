@@ -1,4 +1,5 @@
 \ support for fow-power sleep / extras
+\ from jcw's embello
 
      RCC $48 + constant RCC-APB1SMENR
      RCC $50 + constant RCC-CSR

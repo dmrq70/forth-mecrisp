@@ -1,4 +1,5 @@
 \ Read out the tmp102 temperature sensor on i2c-bus
+\ from jcw's embello
 \ see http://jeelabs.net/boards/7/topics/7417
 
 [ifndef] TMP.ADDR  $48 constant TMP.ADDR  [then]

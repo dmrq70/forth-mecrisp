@@ -1,4 +1,5 @@
 \ I/O pin primitives
+\ from jcw's embello
 
 : bit ( u -- u )  \ turn a bit position into a single-bit mask
   1 swap lshift  1-foldable ;

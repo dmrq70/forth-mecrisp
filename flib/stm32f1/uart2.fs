@@ -1,4 +1,5 @@
 \ polled access to the second UART (USART2)
+\ from jcw's embello
 
 $40004400 constant USART2
    USART2 $00 + constant USART2-SR

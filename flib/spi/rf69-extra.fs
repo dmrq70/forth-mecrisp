@@ -1,4 +1,5 @@
 \ needs rf69-min.fs
+\ from jcw's embello
 
 : rf. ( -- )  \ print out all the RF69 registers
   cr 4 spaces  base @ hex  16 0 do space i . loop  base !

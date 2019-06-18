@@ -1,4 +1,5 @@
 \ bit-banged i2c driver
+\ from jcw's embello
 \ adapted from http://excamera.com/sphinx/article-forth-i2c.html
 \
 \ This driver is master-only. It supports clock stretching.

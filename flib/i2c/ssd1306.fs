@@ -1,4 +1,5 @@
 \ interface to 128x64 OLED
+\ from jcw's embello
 \ uses i2c
 
 [ifndef] OLED.LARGE  0 constant OLED.LARGE  [then]  \ 0 = 128x32, 1 = 128x64

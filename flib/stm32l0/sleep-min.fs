@@ -1,4 +1,5 @@
 \ support for fow-power sleep
+\ from jcw's embello
 
 : lptim-init ( -- )  \ enable the low-power timer
   0 bit $40021048 bis!              \ set LSION  (RCC-CSR)

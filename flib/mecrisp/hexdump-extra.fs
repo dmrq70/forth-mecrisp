@@ -1,4 +1,5 @@
 \ hex output and dump utilities
+\ from jcw's embello
 \ adapted from mecrisp 2.0.2 (GPL3)
 
 : .v ( ... -- ... )  \ view stack, this is a slightly cleaner version of .s

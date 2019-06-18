@@ -1,4 +1,5 @@
 \ read out the BME280 sensor
+\ from jcw's embello
 \ needs i2c
 
 [ifndef] BME.ADDR  $76 constant BME.ADDR  [then]

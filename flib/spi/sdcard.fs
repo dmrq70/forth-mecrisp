@@ -1,4 +1,5 @@
 \ SD Card interface using SPI w/ FAT access
+\ from jcw's embello
 \ uses spi
 
 [ifndef] sd-slow

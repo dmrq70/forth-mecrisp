@@ -1,4 +1,5 @@
 \ tests for bme280.fs
+\ from jcw's embello
 \ the tests assume an attached BME280 in a comfy room environment
 
 include bme280.fs

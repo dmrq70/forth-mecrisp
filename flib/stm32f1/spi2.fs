@@ -1,4 +1,5 @@
 \ hardware SPI driver, 2nd device
+\ from jcw's embello
 
 [ifndef] ssel2  PB12 variable ssel2  [then]  \ can be changed at run time
 [ifndef] SCLK2  PB13 constant SCLK2  [then]

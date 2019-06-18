@@ -3,10 +3,11 @@ STM32L041 with RFM69CW radio.
 
 The space is quite tight (32kB flash), of which 16kB is taken up by Mecrisp
 Stellaris core. So I tried to minimize the includes, so various convenience
-functions (usually printing out statuses) are missing (by default).
+functions (usually printing out statuses) are missing (by default, of course
+they can be added on top, by including `*-extra.fs` parts of the drivers).
 
-So, after board.fs (minimal io defs + sleep + prompt), there is about 9.3kB
-flash left; adding spi+rf69+i2c leaves 2.5kB flash left.
+By default, `board.fs` (`<<<board>>>` cornerstone) includes spi+rf69+i2c
+drivers, leaves cca 6kB flash left.
 
 * default I2C: PA9/scl PA10/sda
 * default SPI: PB5/MOSI, PB4/MISO, PB3/SCLK

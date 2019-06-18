@@ -1,4 +1,5 @@
 \ Real time clock, based on an attached 32 KHz crystal
+\ from jcw's embello
 \ no calendar functions, just a 32-bit counter incrementing once a second
 
      RCC $20 + constant RCC-BDCR

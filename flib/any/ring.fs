@@ -1,4 +1,5 @@
 \ ring buffers, for serial ports, etc - size must be 4..256 and power of 2
+\ from jcw's embello
 \ TODO setup is a bit messy right now, should put buffer: word inside init
 
 \ each ring needs 4 extra bytes for internal housekeeping:

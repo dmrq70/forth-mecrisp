@@ -1,4 +1,5 @@
 \ base definitions for STM32L053
+\ from jcw's embello
 \ adapted from mecrisp-stellaris 2.2.1a (GPL3)
 \ needs io.fs
 

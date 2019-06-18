@@ -1,4 +1,5 @@
 \ Pulse Width Modulation
+\ from jcw's embello
 \ needs timer-stm32l0.fs
 
 \ The following pins are supported for PWM setup on STM32L05x:
