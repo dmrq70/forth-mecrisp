@@ -6,8 +6,6 @@
 \ needs spi
 \ = 1762 bytes in flash
 
-compiletoflash
-
 \ TX part
 
    0 variable rf.mode  \ last set chip mode
@@ -159,5 +157,3 @@ decimal align
   loop
   %00100 rf!mode \ kill RX  \  (RF:M_STDBY)
   0 ;
-
-compiletoram

@@ -14,8 +14,6 @@
 \ IE2 001h
 \ IFG2 003h
 
-compiletoflash
-
 : +spi ( -- ) 1 $29 cbic! ; \ select SPI  (P2OUT)
 : -spi ( -- ) 1 $29 cbis! ; \ deselect SPI  (P2OUT)
 
@@ -36,9 +34,7 @@ compiletoflash
     1 $69 c! \ put USCI in reset  (UCSWRST @ UCB0CTL1)
     %10101001 $68 c! \ 3-pin 8-bit SPI master  (UCCKPH|UCMSB|UCMST|UCSYNC @ UCB0CTL0)
     %11000000 $69 cbis! \ clock source SMCLK  (UCSSELx @ UCB0CTL1)
-    8 $6A c! 0 $6B c! \ prescaler /8  (UCB0BR0, UCB0BR1)
+    2 $6A c! 0 $6B c! \ prescaler /8  (UCB0BR0, UCB0BR1)
     1 $69 cbic! \ leave reset, initialize USCI state machine  (UCSWRST @ UCB0CTL1)
     ;
 
-cornerstone <<<spi>>>
-compiletoram

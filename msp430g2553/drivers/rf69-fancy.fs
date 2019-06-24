@@ -8,8 +8,6 @@
 \   automatic frequency adjustments based on AFC of received packets
 \   note: MSP430 is 16bit, so rf.freq is a double number!
 
-compiletoflash
-
 \       $00 constant RF:FIFO
 \       $01 constant RF:OP
 \       $07 constant RF:FRF
@@ -231,5 +229,3 @@ decimal align
   loop
   %00100 rf!mode \ kill RX  \  (RF:M_STDBY)
   0 ;
-
-compiletoram
