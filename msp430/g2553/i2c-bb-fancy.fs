@@ -60,7 +60,7 @@
 : b>i2c ( f -- )  \ send one I2C bit
   >sda i2c-half 1>scl-s i2c-half 0>scl ;
 : i2c>b ( -- f )  \ receive one I2C bit
-  1 >sda i2c-half 1>scl i2c-half sda> 0>scl ;
+  1 >sda i2c-half 1>scl-s i2c-half sda> 0>scl ;
 
 : x>i2c ( b -- nak )  \ send one byte
   8 0 do dup 128 and b>i2c shl loop drop i2c>b ;
