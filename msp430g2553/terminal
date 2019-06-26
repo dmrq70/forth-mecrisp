@@ -1,2 +1,2 @@
 #!/bin/bash
-exec picocom /dev/ttyACM0 --imap lfcrlf,crcrlf --omap delbs,crlf --send-cmd "ascii-xfr -s -l 250 -n"
+exec picocom /dev/ttyUSB0 --imap lfcrlf,crcrlf --omap delbs,crlf --send-cmd "ascii-xfr -s -l 250 -n"

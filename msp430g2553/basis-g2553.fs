@@ -9,7 +9,7 @@ compiletoflash
 ;
 
 : init \ Launchpad hardware initialisations
-  ." free(flash ram): " $D400 compiletoflash here compiletoram - . flashvar-here here - . cr
+  ." <G2553> free(flash/ram): " $D400 compiletoflash here compiletoram - . flashvar-here here - . cr
   8 $21 cbis! \ High  (P1OUT)
   8 $27 cbis! \ Pullup for button  (P1REN)
   \ 1 64 or $21 cbic! \ LEDs off  (P1OUT)
