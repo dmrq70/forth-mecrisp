@@ -7,7 +7,7 @@
   %01 18 lshift $4002104C bis!      \ use LSI clock  (RCC-CCIPR)
   31 bit $40021038 bis!             \ enable LPTIM1  (RCC-APB1ENR)
   31 bit $40021048 bis!             \ also enable in sleep mode  (RCC-APB1SMENR)
-  %111 9 lshift  !  $40007C0C       \ 128 prescaler  (LPTIM-CFGR)
+  %111 9 lshift $40007C0C !         \ 128 prescaler  (LPTIM-CFGR)
   0 bit $40007C10 bis!              \ set ENABLE  (LPTIM-CR)
   \ the following settings prepare for sleep mode
   28 bit $40021038 bis!             \ set PWREN  (RCC-APB1ENR)
