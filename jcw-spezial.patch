@@ -1,0 +1,225 @@
+diff --git a/mecrisp-stellaris-source/stm32f103-ra/flash.s b/mecrisp-stellaris-source/stm32f103-ra/flash.s
+index 1780751..0092ef6 100644
+--- a/mecrisp-stellaris-source/stm32f103-ra/flash.s
++++ b/mecrisp-stellaris-source/stm32f103-ra/flash.s
+@@ -49,11 +49,6 @@ h_flashkomma:
+   cmp r0, r3
+   blo 3f
+ 
+-  ldr r3, =FlashDictionaryEnde
+-  cmp r0, r3
+-  bhs 3f
+-
+-
+   @ Prüfe Inhalt. Schreibe nur, wenn es NICHT -1 ist.
+   ldr r3, =0xFFFF
+   ands r1, r3  @ High-Halfword der Daten wegmaskieren
+@@ -70,7 +65,7 @@ h_flashkomma:
+   cmp r2, r3
+   bne 3f
+ 
+-  @ Okay, alle Proben bestanden. 
++  @ Okay, alle Proben bestanden.
+ 
+   @ Im STM32F1 ist der Flash-Speicher gespiegelt, die wirkliche Adresse liegt weiter hinten !
+   @ Flash memory is mirrored, use true address later for write
+@@ -158,6 +153,7 @@ flashpageerase:
+ @ -----------------------------------------------------------------------------
+   Wortbirne Flag_visible, "eraseflash" @ ( -- )
+   @ Löscht den gesamten Inhalt des Flashdictionaries.
++eraseflash:
+ @ -----------------------------------------------------------------------------
+         ldr r0, =FlashDictionaryAnfang
+ eraseflash_intern:
+@@ -184,5 +180,6 @@ eraseflash_intern:
+   Wortbirne Flag_visible, "eraseflashfrom" @ ( Addr -- )
+   @ Beginnt an der angegebenen Adresse mit dem Löschen des Dictionaries.
+ @ -----------------------------------------------------------------------------
++        cpsid i
+         popda r0
+         b.n eraseflash_intern
+diff --git a/mecrisp-stellaris-source/stm32f103-ra/mecrisp-stellaris-stm32f103.s b/mecrisp-stellaris-source/stm32f103-ra/mecrisp-stellaris-stm32f103.s
+index e9a39d5..4f8ef4f 100644
+--- a/mecrisp-stellaris-source/stm32f103-ra/mecrisp-stellaris-stm32f103.s
++++ b/mecrisp-stellaris-source/stm32f103-ra/mecrisp-stellaris-stm32f103.s
+@@ -69,12 +69,31 @@ Reset: @ Einsprung zu Beginn
+ @ -----------------------------------------------------------------------------
+    @ Initialisierungen der Hardware, habe und brauche noch keinen Datenstack dafür
+    @ Initialisations for Terminal hardware, without Datastack.
+-   bl uart_init
++@   bl uart_init
+ 
+    @ Catch the pointers for Flash dictionary
+    .include "../common/catchflashpointers.s"
+ 
+-   welcome " for STM32F103 by Matthias Koch"
++@   welcome " for STM32F103 by Matthias Koch"
+ 
+    @ Ready to fly !
+    .include "../common/boot.s"
++
++@ -----------------------------------------------------------------------------
++@  Automatic erase of flash dictionary after initial boot
++@ -----------------------------------------------------------------------------
++
++.p2align 2            @ Align on 4-even before filling up the core space
++
++.org 0x5000, 0xFFFFFFFF @ Synthesise a definition at the beginning of the user flash dictionary
++                        @ which allows catching the dictionary pointers in every case
++                        @ and erases the whole dictionary space - including itself - on the first boot.
++
++ .word  0xFFFFFFFF   @ Empty Link denoting end of dictionary
++ .hword Flag_visible @ Flags normal
++ .byte  4            @ Length
++ .ascii "init"       @ Name
++ .p2align 1          @ Realign
++
++  bl init
++  bl eraseflash
+diff --git a/mecrisp-stellaris-source/stm32f103-ra/terminal.s b/mecrisp-stellaris-source/stm32f103-ra/terminal.s
+index feddd92..4103b27 100644
+--- a/mecrisp-stellaris-source/stm32f103-ra/terminal.s
++++ b/mecrisp-stellaris-source/stm32f103-ra/terminal.s
+@@ -66,4 +66,13 @@ uart_init:
+ 
+   bx lr
+ 
++@ -----------------------------------------------------------------------------
++  Wortbirne Flag_visible, "init"
++init:
++@ -----------------------------------------------------------------------------
++  push {lr}
++  bl uart_init
++  welcome " for STM32F103 by Matthias Koch"
++  pop {pc}
++
+   .ltorg @ Hier werden viele spezielle Hardwarestellenkonstanten gebraucht, schreibe sie gleich !
+diff --git a/mecrisp-stellaris-source/stm32l053c8-ra/flash.s b/mecrisp-stellaris-source/stm32l053c8-ra/flash.s
+index cc64453..fd74d30 100644
+--- a/mecrisp-stellaris-source/stm32l053c8-ra/flash.s
++++ b/mecrisp-stellaris-source/stm32l053c8-ra/flash.s
+@@ -159,14 +159,14 @@ flashpageerase:
+   movs r2, #0
+   str r2, [r0]
+ 
+-  @ Wait for Flash BUSY Flag to be cleared
++    @ Wait for Flash BUSY Flag to be cleared
+ 
+-  ldr r2, =FLASH_SR
++    ldr r2, =FLASH_SR
+ 
+-1:  ldr r3, [r2]
++1:    ldr r3, [r2]
+     movs r1, #1
+     ands r3, r1
+-    bne 1b
++      bne 1b
+ 
+   @ Lock Flash after finishing this
+   ldr r2, =FLASH_PECR
+@@ -180,6 +180,7 @@ flashpageerase:
+ @ -----------------------------------------------------------------------------
+   Wortbirne Flag_visible, "eraseflash" @ ( -- )
+   @ Löscht den gesamten Inhalt des Flashdictionaries.
++eraseflash:
+ @ -----------------------------------------------------------------------------
+         ldr r0, =FlashDictionaryAnfang
+ eraseflash_intern:
+@@ -205,5 +206,6 @@ eraseflash_intern:
+   Wortbirne Flag_visible, "eraseflashfrom" @ ( Addr -- )
+   @ Beginnt an der angegebenen Adresse mit dem Löschen des Dictionaries.
+ @ -----------------------------------------------------------------------------
++        cpsid i
+         popda r0
+         b.n eraseflash_intern
+diff --git a/mecrisp-stellaris-source/stm32l053c8-ra/mecrisp-stellaris-stm32l053c8.s b/mecrisp-stellaris-source/stm32l053c8-ra/mecrisp-stellaris-stm32l053c8.s
+index 1ebdff5..89dae9a 100644
+--- a/mecrisp-stellaris-source/stm32l053c8-ra/mecrisp-stellaris-stm32l053c8.s
++++ b/mecrisp-stellaris-source/stm32l053c8-ra/mecrisp-stellaris-stm32l053c8.s
+@@ -72,12 +72,31 @@ Reset: @ Einsprung zu Beginn
+ @ -----------------------------------------------------------------------------
+    @ Initialisierungen der Hardware, habe und brauche noch keinen Datenstack dafür
+    @ Initialisations for Terminal hardware, without Datastack.
+-   bl uart_init
++@   bl uart_init
+ 
+    @ Catch the pointers for Flash dictionary
+    .include "../common/catchflashpointers.s"
+ 
+-   welcome " with M0 core for STM32L053C8 by Matthias Koch"
++@   welcome " with M0 core for STM32L053C8 by Matthias Koch"
+ 
+    @ Ready to fly !
+    .include "../common/boot.s"
++
++@ -----------------------------------------------------------------------------
++@  Automatic erase of flash dictionary after initial boot
++@ -----------------------------------------------------------------------------
++
++.p2align 2            @ Align on 4-even before filling up the core space
++
++.org 0x5000, 0x00000000 @ Synthesise a definition at the beginning of the user flash dictionary
++                        @ which allows catching the dictionary pointers in every case
++                        @ and erases the whole dictionary space - including itself - on the first boot.
++
++ .word  0x00000000   @ Empty Link denoting end of dictionary
++ .hword Flag_visible @ Flags normal
++ .byte  4            @ Length
++ .ascii "init"       @ Name
++ .p2align 1          @ Realign
++
++  bl init
++  bl eraseflash
+diff --git a/mecrisp-stellaris-source/stm32l053c8-ra/terminal.s b/mecrisp-stellaris-source/stm32l053c8-ra/terminal.s
+index 349b7f4..cacd45a 100644
+--- a/mecrisp-stellaris-source/stm32l053c8-ra/terminal.s
++++ b/mecrisp-stellaris-source/stm32l053c8-ra/terminal.s
+@@ -50,7 +50,7 @@
+         @ Note that the STM32F051 USART is different to the bigger STM32F1/STM32F4 chips.
+ 
+         .equ USART1_BASE     ,   0x40013800
+-        
++
+         .equ USART1_CR1      ,   USART1_BASE + 0x00
+         .equ USART1_CR2      ,   USART1_BASE + 0x04
+         .equ USART1_CR3      ,   USART1_BASE + 0x08
+@@ -76,7 +76,7 @@ uart_init: @ ( -- )
+   ldr r1, =PWR_CR
+   ldr r0, =BIT11
+   str r0, [r1]
+-  
++
+   @ Select 16 MHz HSI clock instead of MSI which is boot default
+   ldr r1, =RCC_CR
+   movs r0, #1       @ HSI on
+@@ -111,11 +111,11 @@ uart_init: @ ( -- )
+   @ Let red LED shine !
+   @ ldr r1, =GPIOA_ODR
+   @ ldr r0, =BIT5
+-  @ str r0, [r1] 
+-  
++  @ str r0, [r1]
++
+   @ Set alternate function 1 to enable USART1 pins on Port A
+   ldr r1, = GPIOA_AFRH
+-  ldr r0, = 0x440      @ Alternate function 4 for TX and RX pins of USART1 on PORTA 
++  ldr r0, = 0x440      @ Alternate function 4 for TX and RX pins of USART1 on PORTA
+   str r0, [r1]
+ 
+   @ Configure BRR by deviding the bus clock with the baud rate
+@@ -130,6 +130,15 @@ uart_init: @ ( -- )
+ 
+   bx lr
+ 
++@ -----------------------------------------------------------------------------
++  Wortbirne Flag_visible, "init"
++init:
++@ -----------------------------------------------------------------------------
++  push {lr}
++  bl uart_init
++  welcome " with M0 core for STM32L053C8 by Matthias Koch"
++  pop {pc}
++
+ .include "../common/terminalhooks.s"
+ 
+ @ -----------------------------------------------------------------------------

@@ -8,7 +8,7 @@
 : rf-deencrypt ( -- ) \ clear encryption
   RF:PCONF2 rf@ $FE and  RF:PCONF2 rf! ;
 
-: enckey s" echolocatingbat3" drop ;
+: enckey s" beleampanchineto" drop ;
 
 : rf-listen-enc ( -- )  \ init RFM69 and then listen (encrypted version)
   rf-init cr   enckey rf-encrypt

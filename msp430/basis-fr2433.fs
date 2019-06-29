@@ -1,5 +1,4 @@
 \ basis: always want this
-\ currently takes 512 bytes of flash (note that cornerstone always bumps up to a multiple of 256)
 
 compiletoflash
 
