@@ -9,20 +9,20 @@ compiletoflash
 4  constant io-ports  \ A..D
 50 constant I2C.DELAY
 
-include ../../flib/mecrisp/calltrace.fs
-include ../../flib/mecrisp/cond.fs
-include ../../flib/mecrisp/hexdump.fs
-include ../../flib/stm32f1/io.fs
-include ../../flib/pkg/pins64.fs
-include ../../flib/stm32f1/hal.fs
-include ../../flib/stm32f1/spi.fs
-include ../../flib/any/ring.fs
-include ../../flib/stm32f1/i2c.fs
-\ include ../../flib/any/i2c-bb.fs
-include ../../flib/stm32f1/timer.fs
-include ../../flib/stm32f1/pwm.fs
-include ../../flib/stm32f1/adc.fs
-include ../../flib/stm32f1/rtc.fs
+include ../../../flib/mecrisp/calltrace.fs
+include ../../../flib/mecrisp/cond.fs
+include ../../../flib/mecrisp/hexdump.fs
+include ../../../flib/stm32f1/io.fs
+include ../../../flib/pkg/pins64.fs
+include ../../../flib/stm32f1/hal.fs
+include ../../../flib/stm32f1/spi.fs
+include ../../../flib/any/ring.fs
+include ../../../flib/stm32f1/i2c.fs
+\ include ../../../flib/any/i2c-bb.fs
+include ../../../flib/stm32f1/timer.fs
+include ../../../flib/stm32f1/pwm.fs
+include ../../../flib/stm32f1/adc.fs
+include ../../../flib/stm32f1/rtc.fs
 
 PB1 constant LED
 PB8 constant BTN
