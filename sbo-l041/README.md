@@ -23,7 +23,7 @@ lowering from 16MHz to 2.1MHz saves also about 1.5mA. (All on 5V through the
 regulator.)
 
 Trying low power sleep (waking up on LPTIMER), with the "factory" firmware,
-tested with `flib/stm32l0/sleep-extra.fs` code, I got cca 7uA consumption in
-sleep, with 5V source through the regulator (this is 11uA on 3.3V).
-Powering with 3.3V directly to the "battery" pin (back-powering the reg)
-asks for 6-8uA.
+tested with `flib/stm32l0/sleep-extra.fs` code, I got cca 9uA - 11uA
+consumption in sleep, with 5V source through the regulator (and likewise with
+3.3V through the regulator).  Powering with 3.3V directly to the "battery" pin
+(back-powering the reg) asks for 6-8uA.

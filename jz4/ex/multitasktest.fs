@@ -26,8 +26,9 @@ blink& lowpower& tasks
 
 : tick ( -- ) timetask wake ;
 
-\ ' tick irq-systick !
-16000000 $E000E014 ! \ How many ticks between interrupts ?
+1 systick-hz
+' tick irq-systick !
+\ 16000000 $E000E014 ! \ How many ticks between interrupts ?
 \        7 $E000E010 ! \ Enable the systick interrupt.
 
 \ stop
