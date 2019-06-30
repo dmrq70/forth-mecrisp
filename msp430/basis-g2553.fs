@@ -1,5 +1,5 @@
 \ basis: always want this
-\ currently takes 512 bytes of flash (note that cornerstone always bumps up to a multiple of 256)
+\ currently takes 512 bytes of flash (note that cornerstone always bumps up to a multiple of 512)
 
 compiletoflash
 
@@ -16,6 +16,8 @@ compiletoflash
   \ 1 64 or $22 cbis! \ LEDs are outputs  (P1DIR)
   1 $21 cbic! \ red LED off  (P1OUT)
   1 $22 cbis! \ red LED is output  (P1DIR)  \ P1.6 is MISO 
+  \ 64 $22 cbis! \ P1.6 is output (if not, launchpad power consumption goes up by 20uA)
+
 ;
 
 \ Measure Vcc/2 on analog channel 11 with 2.5V reference.

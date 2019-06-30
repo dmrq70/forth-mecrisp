@@ -8,12 +8,10 @@ compiletoflash
 
 : init \ Launchpad hardware initialisations
   ." <FR2433> free(flash/ram): " $D400 compiletoflash here compiletoram - . flashvar-here here - . cr
-\  8 $21 cbis! \ High  (P1OUT)
-\  8 $27 cbis! \ Pullup for button  (P1REN)
-\  \ 1 64 or $21 cbic! \ LEDs off  (P1OUT)
-\  \ 1 64 or $22 cbis! \ LEDs are outputs  (P1DIR)
-\  1 $21 cbic! \ red LED off  (P1OUT)
-\  1 $22 cbis! \ red LED is output  (P1DIR)  \ P1.6 is MISO 
+   %10001000 $203 cbis! \ High  (P2OUT)
+   %10001000 $207 cbis! \ Pullups for buttons  (P2REN)
+   %11 $202 cbic! \ LEDs off  (P1OUT)
+   %11 $204 cbis! \ LEDs are outputs  (P1DIR)
 ;
 
 \ : delayticks ( ticks -- ) \ Wait desired number of ticks with 32768 Hz.
@@ -30,6 +28,8 @@ compiletoflash
 \ : ms ( ms -- ) 32768 1000 u*/ delayticks ; \ Maximum is about 1000 ms
 
 : h.2 ( c -- ) base @ hex swap 0 <# # # #> type base ! ; \ Print 2 digits hex
+
+include fr2433/pins.fs
 
 cornerstone <<basis>>
 compiletoram
