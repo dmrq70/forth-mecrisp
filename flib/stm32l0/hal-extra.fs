@@ -23,8 +23,8 @@ $40021000 constant RCC
 
 
 
-[ifndef] IO-PORTS  3 constant IO-PORTS  [then]  \ A..C
+\ [ifndef] IO-PORTS  3 constant IO-PORTS  [then]  \ A..C
 
 : io.all ( -- )  \ display all the readable GPIO registers
-  IO-PORTS 0 do i 0 io io. loop ;
+  3 0 do i 0 io io. loop ; \ (IO-PORTS)
 

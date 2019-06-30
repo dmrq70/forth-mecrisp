@@ -1,0 +1,83 @@
+diff --git a/stm32l053c8-ra/flash.s b/stm32l053c8-ra/flash.s
+index cc64453..63171f8 100644
+--- a/stm32l053c8-ra/flash.s
++++ b/stm32l053c8-ra/flash.s
+@@ -181,6 +181,7 @@ flashpageerase:
+   Wortbirne Flag_visible, "eraseflash" @ ( -- )
+   @ Löscht den gesamten Inhalt des Flashdictionaries.
+ @ -----------------------------------------------------------------------------
++eraseflash:
+         ldr r0, =FlashDictionaryAnfang
+ eraseflash_intern:
+   cpsid i
+diff --git a/stm32l053c8-ra/mecrisp-stellaris-stm32l053c8.s b/stm32l053c8-ra/mecrisp-stellaris-stm32l053c8.s
+index 1ebdff5..89dae9a 100644
+--- a/stm32l053c8-ra/mecrisp-stellaris-stm32l053c8.s
++++ b/stm32l053c8-ra/mecrisp-stellaris-stm32l053c8.s
+@@ -72,12 +72,31 @@ Reset: @ Einsprung zu Beginn
+ @ -----------------------------------------------------------------------------
+    @ Initialisierungen der Hardware, habe und brauche noch keinen Datenstack dafür
+    @ Initialisations for Terminal hardware, without Datastack.
+-   bl uart_init
++@   bl uart_init
+ 
+    @ Catch the pointers for Flash dictionary
+    .include "../common/catchflashpointers.s"
+ 
+-   welcome " with M0 core for STM32L053C8 by Matthias Koch"
++@   welcome " with M0 core for STM32L053C8 by Matthias Koch"
+ 
+    @ Ready to fly !
+    .include "../common/boot.s"
++
++@ -----------------------------------------------------------------------------
++@  Automatic erase of flash dictionary after initial boot
++@ -----------------------------------------------------------------------------
++
++.p2align 2            @ Align on 4-even before filling up the core space
++
++.org 0x5000, 0x00000000 @ Synthesise a definition at the beginning of the user flash dictionary
++                        @ which allows catching the dictionary pointers in every case
++                        @ and erases the whole dictionary space - including itself - on the first boot.
++
++ .word  0x00000000   @ Empty Link denoting end of dictionary
++ .hword Flag_visible @ Flags normal
++ .byte  4            @ Length
++ .ascii "init"       @ Name
++ .p2align 1          @ Realign
++
++  bl init
++  bl eraseflash
+diff --git a/stm32l053c8-ra/memmap b/stm32l053c8-ra/memmap
+index 0b333c5..326cc3d 100644
+--- a/stm32l053c8-ra/memmap
++++ b/stm32l053c8-ra/memmap
+@@ -1,7 +1,7 @@
+ 
+ MEMORY
+ {
+-   rom(RX)   : ORIGIN = 0x00000000, LENGTH = 0x5000
++   rom(RX)   : ORIGIN = 0x00000000, LENGTH = 0x5020
+    ram(WAIL) : ORIGIN = 0x20000000, LENGTH = 0x4000
+ }
+ 
+diff --git a/stm32l053c8-ra/terminal.s b/stm32l053c8-ra/terminal.s
+index 349b7f4..df40ad2 100644
+--- a/stm32l053c8-ra/terminal.s
++++ b/stm32l053c8-ra/terminal.s
+@@ -130,6 +130,15 @@ uart_init: @ ( -- )
+ 
+   bx lr
+ 
++@ -----------------------------------------------------------------------------
++  Wortbirne Flag_visible, "init"
++init:
++@ -----------------------------------------------------------------------------
++  push {lr}
++  bl uart_init
++  welcome " with M0 core for STM32L052K8 by Matthias Koch"
++  pop {pc}
++
+ .include "../common/terminalhooks.s"
+ 
+ @ -----------------------------------------------------------------------------

@@ -41,7 +41,8 @@ include ../flib/stm32l0/i2c-min.fs
   ." ram/flash: " . . ." free " ;
 
 : init ( -- )  \ board initialisation
-  \ init  \ uses new uart init convention
+  init  \ uses new uart init convention
+  %10001100 $4002102C bic! \ disable ioports C D H (RCC-IOPENR)
   OMODE-PP LED io-mode!
   IMODE-FLOAT BTN io-mode!
 \ 16MHz ( set by Mecrisp on startup to get an accurate USART baud rate )

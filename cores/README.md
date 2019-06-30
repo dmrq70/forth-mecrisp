@@ -1,3 +1,15 @@
+# Base mecrisp stellaris images
+
+Built from [Mecrisp Stellaris][MS] sources, with jcw's modifications explained
+below. I maintain these as patches against Mecrisp Stellaris sources, they're
+available in `patches` subdirectory.
+
+There is one extra on top of jcw's images, namely for STM32L041F6, since I use
+those in my environmental sensors. This is not RA (since the F6s have only 32kB
+flash), and the correct base erase is `$4000 eraseflashfrom`.
+
+# Original explanation from jcw:
+
 These firmware images are copies from the [Mecrisp-Stellaris][MG] repository on
 GitHub.
 
