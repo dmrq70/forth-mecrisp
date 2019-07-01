@@ -1,6 +1,3 @@
-\ the dependencies are sleep-extra -> hal-extra -> io-extra
-\ include ../flib/stm32l0/sleep-extra.fs
-
 \ this doesn't seem to make much of difference in power consumption,
 \ definitely less than 1uA
 : usart2-disable ( -- )
@@ -15,6 +12,9 @@
 : extra-ioports-disable ( -- )
   1 bit $4002102C bic!             \ disable PORTB clock (RCC-IOPENR)
   ;
+
+: stop10s   ( -- )  \ sleep in low-power for 10 sec
+  370000 stop-freq ;
 
 : lp-blink ( -- ) usart2-disable  led-on 10 ms led-off  only-msi  begin  stop10s led iox!  again ;
 
