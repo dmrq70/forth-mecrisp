@@ -5,9 +5,7 @@ see [his blog post](http://jeelabs.org/2016/06/standalone-usb-firmware/).
 He has done a really amazing job of getting this running in the first place; in
 his case for F103-based devices.
 I have modified it so that it runs on F072; the primary target for me is the
-[bat board] (with STM32F072CxT6). (There were a few snags, the main difference
-is the addressing of the 'packet memory' between F1 and F0x2 chips, and fixing
-a couple of omissions in the original driver.)
+[bat board] (with STM32F072CxT6). I have also tried it on 
 
 The assumption is that it runs on a clean Mecrisp Stellaris image, ideally with
 jcw's 'spezial' modification (there are binaries available in this repo in
@@ -38,11 +36,23 @@ See also the details about all this (for F103) in jcw's original
 
 In particular, `eraseflash` will keep the USB driver/console in, but `$5000 eraseflashfrom`
 erases the USB driver and goes bat to a clean Mecrisp (USART console only). The USB
-driver takes up 6kB of flash.
+driver takes up 6kB of flash. Note that the clean Mecrisp runs the prompt on a particular
+USART (that was determined when Mecrisp Stellaris was compiled). My images run with TX/RX
+on PA9/PA10, USART1, 115200 baud.
 
-(To get a `bin` from `hex`, do `srec_cat -Output uot.bin -Binary uot.hex -Intel`.)
+Finally, clean Mecrisp Stellaris doesn't mess with the clock, so the chip runs on 16MHz,
+clocked from HSI oscillator (high-speed internal). To get USB running, the driver switches
+to 48MHz (clocked from HSI, multiplied by PLL). The USB is clocked from HSI48 which is being
+automatically trimmed to the precision required by the USB through "clock recovery system",
+timed from SOF USB packets.
+
+---
+
+There were a few snags porting from F103 to F072; the main difference
+is the addressing of the 'packet memory' between F1 and F0x2 chips, and fixing
+a couple of omissions in the original driver.
+
 
 
 [bat board]: https://flabbergast.drak.xyz/bat-board
 [folie]: https://git.jeelabs.org/jcw/folie
-

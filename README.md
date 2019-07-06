@@ -58,7 +58,8 @@ Layout
   has plenty of flash, so various "convenience" bits (hexdumps, prettyprint,
   disasm,...) fit into flash without any compromises.
 - `bat-board-l052` and `sbo-l041` are two of my homebrew boards: [bat board]
-  and a try-out board for TSSOP-20 packaged STM32L041.
+  and [sbo], a try-out board for TSSOP-20 packaged STM32L041.
+- `suf072` is a port of jcw's [suf] to F072, i.e. running forth prompt over USB.
 - `msp430`: this code is for [mecrisp], 16bit forth running on TI's
   MSP430G2553 and MSP430FR2433 MCUs. The space is very tight on these
   (the G2553 with mecrisp has 5kB flash and 160 bytes RAM available).
@@ -73,3 +74,5 @@ Layout
 [my-jee-sensors]: https://git.drak.xyz/flabbergast/jee-sensors
 [pb-cape]: https://flabbergast.drak.xyz/posts/pb-rfmcape
 [bat board]: https://flabbergast.drak.xyz/bat-board
+[sbo]: https://flabbergast.drak.xyz/posts/sbo
+[suf]: http://jeelabs.org/2016/06/standalone-usb-firmware
