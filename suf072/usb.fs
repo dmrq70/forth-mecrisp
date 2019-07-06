@@ -215,7 +215,8 @@ $40006000 constant USBMEM
 : send-desc ( -- )
   $42 usb-pma@ case
     $0100 of usb:dev     18 endof
-    $0200 of usb:conf    $46 usb-pma@ endof  \ js: was 67 (issue is: first 9 bytes gets requested also separately)
+    $0200 of usb:conf    $46 usb-pma@ endof
+          \ js: was 67 (issue is: first 9 bytes gets requested also separately)
     $0300 of usb:langid  4  endof
     $0301 of usb:vendor  40 endof
     $0302 of usb:product 36 endof
@@ -295,10 +296,7 @@ create zero 0 ,
     usb.ticks @ 10000 u> if usb-flush then
   then
   \ main USB driver polling
-  \ 13 bit USB-FNR bit@ if led-on then  \ light up if we get SOF lock
   USB-ISTR h@
-  \ dup $200 and if 124 emit $FDFF USB-ISTR h! then  \ are we getting SOF?
-  \ dup $100 and if  led-off               $FEFF USB-ISTR h! then  \ are we NOT getting SOF?
   dup $8000 and if dup usb-ctr                             then
   dup $0400 and if usb-reset             $FBFF USB-ISTR h!
                  3 bit USB-CNTR bit@ if %1100 USB-CNTR hbic! then  then  \ if received when suspended, desuspend
@@ -319,10 +317,9 @@ create zero 0 ,
   1 bit USB-CNTR bic!   100 0 do loop   \ clear USB periph powerdown (PDWN)
   $0001 USB-CNTR h!  ( 10 us ) 500 0 do loop  $0000 USB-CNTR h!  \ generate reset state (FRES)
   usb-flush
-  \ ['] usb-key? hook-key? !
-  \ ['] usb-key hook-key !
-  \ 1000000 0 do usb-poll loop
-  \ ['] usb-emit? hook-emit? !
-  \ ['] usb-emit hook-emit !  ;
-  3000000 0 do usb-poll loop ;
+  ['] usb-key? hook-key? !
+  ['] usb-key hook-key !
+  1000000 0 do usb-poll loop
+  ['] usb-emit? hook-emit? !
+  ['] usb-emit hook-emit !  ;
 
