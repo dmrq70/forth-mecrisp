@@ -1,82 +1,48 @@
-Serial USB driver for Forth - see <http://jeelabs.org/2016/06/standalone-usb-firmware/>
+## Mecrisp over native USB on F072
 
-### Boards
+This is a modification of Jean-Claude Wippler's "Serial USB driver for Forth" -
+see [his blog post](http://jeelabs.org/2016/06/standalone-usb-firmware/).
+He has done a really amazing job of getting this running in the first place; in
+his case for F103-based devices.
+I have modified it so that it runs on F072; the primary target for me is the
+[bat board] (with STM32F072CxT6). (There were a few snags, the main difference
+is the addressing of the 'packet memory' between F1 and F0x2 chips, and fixing
+a couple of omissions in the original driver.)
 
-* **generic** - many boards, see [eBay](http://www.ebay.com/itm/311156408508) - PA12 high enables USB (sort of)
-* **hotcbo** - HotMCU Core Board 1xx see [Haoyu](http://www.hotmcu.com/hystm32f1xxcore144-coredev-board-p-2.html?cPath=1_20) - PF10 low enables USB
-* **hytiny** - Hy-TinySTM103T, see [Haoyu](http://www.hotmcu.com/stm32f103tb-arm-cortex-m3-development-board-p-222.html?cPath=1_20) - PA0 low enables USB
-* **maplemini** - LeafLabs Maple Mini etc, see [eBay](http://www.ebay.com/itm/400569863658) - PB9 pulsed high enables USB
-* **olimexino** - LeafLabs Maple and similar, see [Olimex](https://www.olimex.com/Products/Duino/STM32/OLIMEXINO-STM32/) - PC12 low enables USB
-* **olip103** - Olimex STM32 P103 board [Olimex](https://www.olimex.com/Products/ARM/ST/STM32-P103/) - PC11 low enables USB
-* **port103z** - Port103Z, see [WaveShare](http://www.waveshare.com/wiki/Port103Z) -
-  PA3 low enables USB
+The assumption is that it runs on a clean Mecrisp Stellaris image, ideally with
+jcw's 'spezial' modification (there are binaries available in this repo in
+`cores`). (The only consequence of using the standard Mecrisp Stellaris is that
+USARTx does get initialised; it doesn't on 'spezial'.)
 
-> Note: `generic` and `hytiny` have now been combined into a single `common`
-> image, which checks the board type at run time and adjusts the USB control
-> pin accordingly.
+So, getting this on the board requires:
+1. Get a clean Mecrisp Stellaris on the board (using F072's built-in
+   bootloader, either USART or DFU).
+2. Connect to the default USART console Mecrisp, and send over
+   `usbbase-bat-f072.fs` (with [folie], otherwise you'll need to manually
+   resolve the `include`s).
+3. At this point, when you `reset` the board, no USART console shows up, and
+   the device should enumerate as an USB ACM device, over which you should be
+   able to talk to Mecrisp.
 
-The `.hex` and `.bin` files can be used to flash a board from scratch. These
-include the
-[g6u/board.fs](https://github.com/jeelabs/embello/blob/master/explore/1608-forth/g6u/board.fs)
-and
-[g6u/core.fs](https://github.com/jeelabs/embello/blob/master/explore/1608-forth/g6u/core.fs)
-code, with drivers and libraries - i.e. _batteries included!_
+This is a bit tedious, so instead you can just upload
+`mecrisp-2.5.0-bat-f072usb.bin` from this directory - it is the result of the above
+process, with Mecrisp Stellaris 2.5.0 core with 'spezial' patch. This can be
+done either over USART, or over USB with `dfu-util` - the latter is convenient
+in that no USB-to-serial converter is necessary at all, since everything
+happens over USB.
 
-To upload using [Folie](https://github.com/jeelabs/folie) and a
-[SerPlus](http://jeelabs.org/article/1649f/), enter the following command:
+### Notes
 
-    !u path/to/usb-common.hex
+See also the details about all this (for F103) in jcw's original
+[README](https://git.jeelabs.org/jcw/embello/src/branch/master/explore/1608-forth/suf/README.md).
 
-Or, even simpler, you can upload directly from the last version on GitHub:
+In particular, `eraseflash` will keep the USB driver/console in, but `$5000 eraseflashfrom`
+erases the USB driver and goes bat to a clean Mecrisp (USART console only). The USB
+driver takes up 6kB of flash.
 
-    !u https://raw.githubusercontent.com/jeelabs/embello/master/explore/1608-forth/suf/usb-common.hex
+(To get a `bin` from `hex`, do `srec_cat -Output uot.bin -Binary uot.hex -Intel`.)
 
-Be sure to refer to the actual _raw_ file contents, not the GitHub page itself!
 
-### Builds
+[bat board]: https://flabbergast.drak.xyz/bat-board
+[folie]: https://git.jeelabs.org/jcw/folie
 
-The `f-*.fs` files are used to create these images. Here is an example
-transcript of loading the `f-common.fs` file into Folie, while connected to an
-F103-based Blue Pill:
-
-```
-$ folie
-Folie v2.11
-Select the serial port:
-  1: /dev/cu.Bluetooth-Incoming-Port
-  2: /dev/cu.usbmodem32212431
-  3: /dev/cu.usbmodem3430DC31
-  4: /dev/cu.usbmodemC92AED31
-4
-Enter '!help' for additional help, or ctrl-d to quit.
-[connected to /dev/cu.usbmodemC92AED31]
-!s f-common.fs
-1> f-common.fs 3: Erase block at  00005000  from Flash
-1> f-common.fs 4: Erase block at  00005400  from Flash
-Erase block at  00005800  from Flash
-[...]
-Erase block at  0000B800  from Flash
-Finished. Reset �Mecrisp-Stellaris RA 2.3.6 for STM32F103 by Matthias Koch
-1> f-common.fs 11: Redefine init.  ok.
-1> f-common.fs 35: ( usb end: ) 000063D0  ok.
-1> f-common.fs 36: Redefine eraseflash.  ok.
-5> board.fs 5: ( board start: ) 00006400  ok.
-5> board.fs 36: Redefine init.  ok.
-5> board.fs 45: 64 KB <g6u> 32212433 ram/flash: 19108 27648 free  ok.
-18> core.fs 5: ( core start: ) 00009400  ok.
-18> core.fs 14: 64 KB <g6u> 32212433 ram/flash: 16792 17408 free  ok.
-1> f-common.fs 41: hexdump
-:100000008C030020EF4D0000074800000748000067
-:1000100007480000074800000748000000000000F3
-[...]
-:10BBE0000000000000000000000000000000000055
-:10BBF0000000000000000000000000000000000045
-:00000001FF
- ok.
-```
-
-As you can see, the hex dump is generated as last step in this process and can
-be copied manually to the `usb-common.hex` file.  Note that on the next reset,
-the serial connection will be dropped and the board will start listening on its
-USB interface. To prevent this, enter `$5000 eraseflashfrom` - this will remove
-all the above code again.
