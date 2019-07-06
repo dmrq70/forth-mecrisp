@@ -30,7 +30,6 @@ $40006C00 constant CRS
     CRS $00 + constant CRS-CR
     CRS $04 + constant CRS-CFGR
 
-
 \ : 48MHz ( -- )  \ set the main clock to 48MHz (HSI -> PLL)
 \     0 bit RCC-CR bis!                \ switch on HSI
 \     begin 1 bit RCC-CR bit@ until    \ wait for HSIRDY
@@ -59,7 +58,7 @@ $40006C00 constant CRS
   %11 rcc-cfgr3 bis!  \ USART1 clocked from HSI
 ;
 
-: usb-clk ( -- )  \ enable autotrim and clock to USB
+: usb-clk ( -- )  \ enable HSI48, autotrim and set USB clock source
     16 bit RCC-CR2 bis!                \ switch on HSI48
     begin 17 bit RCC-CR2 bit@ until    \ wait for HSI48RDY
 
@@ -67,12 +66,10 @@ $40006C00 constant CRS
     CRS-CFGR @  %11 28 lshift bic      \ prepare setting SYNCSRC
         %10 28 lshift or CRS-CFGR !    \ set USB SOF, write back
     6 bit 5 bit or  CRS-CR bis!        \ set AUTOTRIMEN and CEN
+    \ will only start actually working after we start getting SOF
 
     7 bit RCC-CFGR3 bic!               \ HSI48 is USB clock source
-
-    23 bit RCC-APB1ENR bis!            \ USBEN
 ;
-
 
 
 \ emulate c, which is not available in hardware on some chips.

@@ -1,12 +1,10 @@
 \ USB driver
 \ from jcw's embello
+\ modified for F072 by flabbergast
 
-\ js: WHY WHY WHY is the F103 address into USBMEM so weird (2x if even, 2x-1 if odd)?
+\ js: the F103 address into USBMEM is so weird (2x if even, 2x-1 if odd)?
 \ js: difference in 'buffer descriptor table' in the reference manuals:
 \   F1: "words on 32bit-aligned addresses"; F0: nothing special
-
-: led-on 1 15 lshift $48000018 bis! ;
-: led-of 1 31 lshift $48000018 bis! ;
 
 create usb:dev
   18 c,  \ bLength
@@ -158,12 +156,14 @@ $40005C00 constant USB
      USB $58 + constant USB-BCDR
 $40006000 constant USBMEM
 
-\ : usb-pma ( pos -- addr ) dup 1 and negate swap 2* + USBMEM + ;
-\ : usb-pma@ ( pos -- u ) usb-pma h@ ;
-\ : usb-pma! ( u pos -- ) usb-pma h! ;
 : usb-pma ( pos -- addr ) USBMEM + 1-foldable ;
-: usb-pma@ ( pos -- u ) usb-pma dup 1 and if c@ else h@ then ;
-: usb-pma! ( u pos -- ) usb-pma dup 1 and if c! else h! then ;
+: usb-pma-c! ( b pos -- )  \ careful, can't write high bytes separately
+  dup 1 and if
+    1- dup usb-pma c@ rot 8 lshift or swap
+  then usb-pma h! ; \ note this will zero the higher byte if 'pos' is even
+: usb-pma@ ( pos -- u ) usb-pma h@ ; \ h@ on odd address crashes (but is only called on even here)
+: usb-pma! ( u pos -- ) usb-pma h! ; \ c! always writes the same byte to the 2-aligned pair of bytes
+                                     \ h! crashes on odd addrs (only used on even here)
 
 : ep-addr ( ep -- addr ) cells USB-EP0R + ;
 : ep-reg ( ep n -- addr ) 2* swap 8 * + usb-pma ;
@@ -215,7 +215,7 @@ $40006000 constant USBMEM
 : send-desc ( -- )
   $42 usb-pma@ case
     $0100 of usb:dev     18 endof
-    $0200 of usb:conf    67 endof
+    $0200 of usb:conf    $46 usb-pma@ endof  \ js: was 67 (issue is: first 9 bytes gets requested also separately)
     $0300 of usb:langid  4  endof
     $0301 of usb:vendor  40 endof
     $0302 of usb:product 36 endof
@@ -251,11 +251,6 @@ create zero 0 ,
 
 0 variable tx.pend
 0 variable usb.ticks
-
-: usb-pma-c! ( b pos -- )  \ careful, can't write high bytes separately
-  dup 1 and if
-    1- dup usb-pma@ rot 8 lshift or swap
-  then usb-pma! ;
 
 : usb-fill ( -- )  \ fill the USB outbound buffer from the TX ring buffer
   usb-out-ring ring# ?dup if
@@ -303,12 +298,12 @@ create zero 0 ,
   \ 13 bit USB-FNR bit@ if led-on then  \ light up if we get SOF lock
   USB-ISTR h@
   \ dup $200 and if 124 emit $FDFF USB-ISTR h! then  \ are we getting SOF?
-  dup $100 and if  61 emit $FEFF USB-ISTR h! then  \ are we NOT getting SOF? =
-  dup $8000 and if dup usb-ctr           46 emit          then   \ .
-  dup $0400 and if usb-reset             64 emit    $FBFF USB-ISTR h!  \ @
+  \ dup $100 and if  led-off               $FEFF USB-ISTR h! then  \ are we NOT getting SOF?
+  dup $8000 and if dup usb-ctr                             then
+  dup $0400 and if usb-reset             $FBFF USB-ISTR h!
                  3 bit USB-CNTR bit@ if %1100 USB-CNTR hbic! then  then  \ if received when suspended, desuspend
-  dup $0800 and if %1100 USB-CNTR hbis! 118 emit $F7FF USB-ISTR h! then \ suspend v
-      $1000 and if %1000 USB-CNTR hbic!  94 emit $EFFF USB-ISTR h! then ; \ wake ^
+  dup $0800 and if %1100 USB-CNTR hbis!  $F7FF USB-ISTR h! then \ suspend v
+      $1000 and if %1000 USB-CNTR hbic!  $EFFF USB-ISTR h! then ; \ wake ^
 
 : usb-key? ( -- f )  pause usb-poll usb-in-ring ring# 0<> ;
 : usb-key ( -- c )  begin usb-key? until  usb-in-ring ring> ;
@@ -317,9 +312,12 @@ create zero 0 ,
                      tx.pend @ 0= if usb-fill then ;
 
 : usb-io ( -- )  \ start up USB and switch console I/O to it
-  \ 23 bit RCC-APB1ENR bis!  \ USBEN
-  1 bit USB-CNTR bic!   100 0 do loop   \ clear PDWN
-  $0001 USB-CNTR h!  ( 10 us ) 500 0 do loop  $0000 USB-CNTR h!  \ FRES
+  23 bit RCC-APB1ENR bis!               \ clock to USB (USBEN)
+  15 bit USB-BCDR hbic!                 \ disconnect USB
+  100000 0 do loop
+  15 bit USB-BCDR hbis!                 \ enable pullup on D+ line (DPPU)
+  1 bit USB-CNTR bic!   100 0 do loop   \ clear USB periph powerdown (PDWN)
+  $0001 USB-CNTR h!  ( 10 us ) 500 0 do loop  $0000 USB-CNTR h!  \ generate reset state (FRES)
   usb-flush
   \ ['] usb-key? hook-key? !
   \ ['] usb-key hook-key !
@@ -327,5 +325,4 @@ create zero 0 ,
   \ ['] usb-emit? hook-emit? !
   \ ['] usb-emit hook-emit !  ;
   3000000 0 do usb-poll loop ;
-  \ begin usb-poll again ;
 

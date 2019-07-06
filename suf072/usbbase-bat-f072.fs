@@ -6,30 +6,18 @@ $5000 eraseflashfrom  \ this must be loaded on top of a *clean* Mecrisp image!
 cr
 compiletoflash
 
+include ../flib/mecrisp/calltrace.fs
 include hal-stm32f0.fs
 include ../flib/any/ring.fs
 include usb.fs
 
-: led-on 1 15 lshift $48000018 bis! ;
-: led-of 1 31 lshift $48000018 bis! ;
-
-: dppu \ disconnect and connect USB
-  15 bit USB-BCDR hbic!  \ disconnect USB
-  100000 0 do loop
-  15 bit USB-BCDR hbis!  \ enable pullup on D+ line (DPPU)
-;
-
 : init ( -- )
   init
   \ with the 'spezial' mecrisp base, mecrisp's init doesn't run so...
+  ['] ct-irq irq-fault !  \ show call trace in unhandled exceptions
   %111 17 lshift RCC-AHBENR bis!  \ enable GPIO ABC
   48MHz-after-reset
-  \ 48MHz
-
-  $68280000 $48000000 ! \ PA15 LED output
-
   usb-clk
-  \ dppu usb-io
 ;
 
 include ../flib/mecrisp/hexdump-min.fs
