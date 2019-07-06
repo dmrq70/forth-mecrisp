@@ -117,7 +117,7 @@ create usb:vendor
   40 c, 3 c,  \ USB_STRING_DESCRIPTOR_TYPE,
   char M h, char e h, char c h, char r h, char i h, char s h, char p h,
   bl     h, char ( h, char S h, char T h, char M h, char 3 h, char 2 h,
-  char F h, char 1 h, char 0 h, char x h, char ) h,
+  char F h, char 0 h, char 7 h, char 2 h, char ) h,
 
 create usb:product
   36 c, 3 c,  \ USB_STRING_DESCRIPTOR_TYPE,
@@ -285,7 +285,6 @@ create zero 0 ,
   txclear ;
 
 : usb-ctr ( istr -- )
-  led-on
   dup $07 and swap $10 and if 
     dup ep-addr h@ $800 and if ep-setup else ep-out then
   else ep-in then ;
@@ -301,16 +300,15 @@ create zero 0 ,
     usb.ticks @ 10000 u> if usb-flush then
   then
   \ main USB driver polling
+  \ 13 bit USB-FNR bit@ if led-on then  \ light up if we get SOF lock
   USB-ISTR h@
-  \ dup dup $100 bic if hex. else drop then
-  \ dup 1 8 lshift and if led-on then
-  \ dup $100 bic if 0 ep-addr h@ hex. then
-  dup $200 and if 124 emit $FDFF USB-ISTR h! then
-  dup $100 and if  61 emit $FEFF USB-ISTR h! then
-  dup $8000 and if dup usb-ctr                            then
-  dup $0400 and if usb-reset 64 emit    $FBFF USB-ISTR h! then
-  dup $0800 and if %1100 USB-CNTR hbis! 118 emit $F7FF USB-ISTR h! then
-      $1000 and if %1000 USB-CNTR hbic!  94 emit $EFFF USB-ISTR h! then ;
+  \ dup $200 and if 124 emit $FDFF USB-ISTR h! then  \ are we getting SOF?
+  dup $100 and if  61 emit $FEFF USB-ISTR h! then  \ are we NOT getting SOF? =
+  dup $8000 and if dup usb-ctr           46 emit          then   \ .
+  dup $0400 and if usb-reset             64 emit    $FBFF USB-ISTR h!  \ @
+                 3 bit USB-CNTR bit@ if %1100 USB-CNTR hbic! then  then  \ if received when suspended, desuspend
+  dup $0800 and if %1100 USB-CNTR hbis! 118 emit $F7FF USB-ISTR h! then \ suspend v
+      $1000 and if %1000 USB-CNTR hbic!  94 emit $EFFF USB-ISTR h! then ; \ wake ^
 
 : usb-key? ( -- f )  pause usb-poll usb-in-ring ring# 0<> ;
 : usb-key ( -- c )  begin usb-key? until  usb-in-ring ring> ;
@@ -319,14 +317,15 @@ create zero 0 ,
                      tx.pend @ 0= if usb-fill then ;
 
 : usb-io ( -- )  \ start up USB and switch console I/O to it
-  23 bit RCC-APB1ENR bis!  \ USBEN
-  $0001 USB-CNTR h! ( 10 us ) $0000 USB-CNTR h!  \ FRES
+  \ 23 bit RCC-APB1ENR bis!  \ USBEN
+  1 bit USB-CNTR bic!   100 0 do loop   \ clear PDWN
+  $0001 USB-CNTR h!  ( 10 us ) 500 0 do loop  $0000 USB-CNTR h!  \ FRES
   usb-flush
   \ ['] usb-key? hook-key? !
   \ ['] usb-key hook-key !
   \ 1000000 0 do usb-poll loop
   \ ['] usb-emit? hook-emit? !
   \ ['] usb-emit hook-emit !  ;
-  1000000 0 do usb-poll loop ;
+  3000000 0 do usb-poll loop ;
   \ begin usb-poll again ;
 

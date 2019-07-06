@@ -69,6 +69,8 @@ $40006C00 constant CRS
     6 bit 5 bit or  CRS-CR bis!        \ set AUTOTRIMEN and CEN
 
     7 bit RCC-CFGR3 bic!               \ HSI48 is USB clock source
+
+    23 bit RCC-APB1ENR bis!            \ USBEN
 ;
 
 
