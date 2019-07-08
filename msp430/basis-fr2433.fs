@@ -29,7 +29,7 @@ compiletoflash
 
 : h.2 ( c -- ) base @ hex swap 0 <# # # #> type base ! ; \ Print 2 digits hex
 
-include fr2433/pins.fs
+include fr2433/port-regs.fs
 
 cornerstone <<basis>>
 compiletoram
