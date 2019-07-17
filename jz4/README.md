@@ -15,6 +15,15 @@ with TX/RX pins connected) - so the regulator has very very low ground power,
 and doesn't seem to mind back-powering too much.  Overall, this is pretty
 sweet.
 
+There is a [blog post](https://jeelabs.org/article/1652b/) in which jcw
+measures power consumption. Roughly the same numbers as here, except the
+very low power stuff is reported lower: 6.5uA with the setup as above
+and 3uA with GPIOs in Hi-Z. Well. (Switching GPIO to Hi-Z mode does save
+about 3uA.)
+
+He reports that the regulator takes 0.5uA, and the radio in sleep 0.1uA.
+
+
 ## Credits
 
 Most of the code here comes, one way or another, from jcw's [embello] repo.

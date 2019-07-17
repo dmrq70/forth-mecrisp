@@ -10,13 +10,13 @@ compiletoflash
 
 : init \ Launchpad hardware initialisations
   ." <G2553> free(flash/ram): " $D400 compiletoflash here compiletoram - . flashvar-here here - . cr
-  8 $21 cbis! \ High  (P1OUT)
-  8 $27 cbis! \ Pullup for button  (P1REN)
-  \ 1 64 or $21 cbic! \ LEDs off  (P1OUT)
-  \ 1 64 or $22 cbis! \ LEDs are outputs  (P1DIR)
-  1 $21 cbic! \ red LED off  (P1OUT)
-  1 $22 cbis! \ red LED is output  (P1DIR)  \ P1.6 is MISO 
-  \ 64 $22 cbis! \ P1.6 is output (if not, launchpad power consumption goes up by 20uA)
+  \ 8 $21 cbis! \ High  (P1OUT)
+  \ 8 $27 cbis! \ Pullup for button  (P1REN)
+  \ \ 1 64 or $21 cbic! \ LEDs off  (P1OUT)
+  \ \ 1 64 or $22 cbis! \ LEDs are outputs  (P1DIR)
+  \ 1 $21 cbic! \ red LED off  (P1OUT)
+  \ 1 $22 cbis! \ red LED is output  (P1DIR)  \ P1.6 is MISO 
+  \ \ 64 $22 cbis! \ P1.6 is output (if not, launchpad power consumption goes up by 20uA)
 
 ;
 
