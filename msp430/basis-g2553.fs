@@ -26,10 +26,10 @@ compiletoflash
 : delayticks ( ticks -- ) \ Wait desired number of ticks with 32768 Hz.
 \ Second Timer, free
   ['] wakeup irq-timerb0 ! \ Set Wakeup-Interrupt
-  $10  $0182 ! \ Enable Interrupt
-  0    $0190 ! \ Clear TAR
-       $0192 ! \ Set desired delay
-  $110 $0180 ! \ ACLK, Up-Mode
+  $10  $0182 ! \ Enable Interrupt  (TBCCTL0)
+  0    $0190 ! \ Clear TAR         (TBR)
+       $0192 ! \ Set desired delay (TBCCR0)
+  $110 $0180 ! \ ACLK, Up-Mode     (TBCTL)
   lpm3         \ Sleep in LPM3
   0 $180 !     \ Stop Timer
 ;

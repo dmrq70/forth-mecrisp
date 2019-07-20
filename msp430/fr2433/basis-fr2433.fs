@@ -8,20 +8,20 @@ compiletoflash
 
 : init \ Launchpad hardware initialisations
   ." <FR2433> free(flash/ram): " $D400 compiletoflash here compiletoram - . flashvar-here here - . cr
-   %10001000 $0203 cbis! \ High \ ($0203:P2OUT)
-   %10001000 $0207 cbis! \ Pullups for buttons \ ($0207:P2REN)
-         %11 $0202 cbic! \ LEDs off \ ($0202:P1OUT)
-         %11 $0204 cbis! \ LEDs are outputs \ ($0204:P1DIR)
+   %10001000 P2OUT cbis! \ High
+   %10001000 P2REN cbis! \ Pullups for buttons
+         %11 P1OUT cbic! \ LEDs off
+         %11 P1DIR cbis! \ LEDs are outputs
 ;
 
 : delayticks ( ticks -- ) \ Wait desired number of ticks with 32768 Hz.
   ['] wakeup irq-timerb0 ! \ Set Wakeup-Interrupt (Timer1)
-  $10  $03C2 !  \ CCIE (enable interrupt) \ ($03C2:TA1CCTL0)
-  4    $03C0 bis! \ clear timer \ ($03C0:TA1CTL)
-       $03D2 !   \ set delay \ ($03D2:TA1CCR0)
-  $110 $03C0 !    \ ACLK source, UP mode \ ($03C0:TA1CTL)
+  $10  TA1CCTL0 !  \ CCIE (enable interrupt)
+  4    TA1CTL bis! \ clear timer
+       TA1CCR0 !   \ set delay
+  $110 TA1CTL !    \ ACLK source, UP mode
   lpm3
-  4    $03C0 !    \ stop and reset timer \ ($03C0:TA1CTL)
+  4    TA1CTL !    \ stop and reset timer
 ;
 
 : ms ( ms -- ) 32768 1000 u*/ delayticks ; \ Maximum is about 1000 ms
