@@ -14,8 +14,15 @@ include ../flib/stm32l0/hal.fs
 include ../flib/stm32l0/adc.fs
 include ../flib/stm32l0/timer.fs
 include ../flib/stm32l0/pwm.fs
-include ../flib/stm32l0/i2c.fs
 include ../flib/stm32l0/sleep.fs
+include ../flib/mecrisp/multi.fs
+
+PB8 constant SCL
+PB9 constant SDA
+: i2c-pafs ( -- ) \ set alternate function for SDA/SCL pins
+  PB8 io-base $24 + \ register addr \ ($24:GPIO.AFRH)
+  dup @  $FFFFFF00 and  $11 or ! ;
+include ../flib/stm32l0/i2c.fs
 
 PB8 variable ssel  \ can be changed at run time
 PB3 constant SCLK
