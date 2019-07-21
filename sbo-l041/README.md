@@ -1,6 +1,10 @@
 This code is for my "sensor board"; effectively just a TSSOP-20 packaged
 STM32L041 with RFM69CW radio.
 
+It runs on both [the dev version](https://flabbergast.drak.xyz/posts/sbo/)
+and the [sensor deploy version](https://flabbergast.drak.xyz/posts/sbo-box/) -
+they've got the same schematic, just the PCBs are different.
+
 The space is quite tight (32kB flash), of which 16kB is taken up by Mecrisp
 Stellaris core. So I tried to minimize the includes, so various convenience
 functions (usually printing out statuses) are missing (by default, of course
@@ -23,7 +27,11 @@ lowering from 16MHz to 2.1MHz saves also about 1.5mA. (All on 5V through the
 regulator.)
 
 Trying low power sleep (waking up on LPTIMER), with the "factory" firmware,
-tested with `flib/stm32l0/sleep-extra.fs` code, I got cca 9uA - 11uA
-consumption in sleep, with 5V source through the regulator (and likewise with
-3.3V through the regulator).  Powering with 3.3V directly to the "battery" pin
-(back-powering the reg) asks for 6-8uA.
+with `ex/sleep-test.fs`, running `lp-blips`.
+
+* Powered by 5V through the regulator: 7-8uA.
+* Powered by 3.3V through the regulator: 7-8uA (the regulator is supposed to have
+  problems with this).
+* Powered directly by regulated 3.3V with regulator disconnected from the vdd net: 2uA. (!)
+* Powered directly by regulated 3.3V with regulator *not* disconnected from the vdd net (so effectively back-powering the regulator): 9-10uA.
+

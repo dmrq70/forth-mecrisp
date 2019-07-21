@@ -1,5 +1,3 @@
-\ this doesn't seem to make much of difference in power consumption,
-\ definitely less than 1uA
 : usart2-disable ( -- )
   2 bit $40004400 bic!             \ clear TE (USART2-CR1)
   begin 6 bit $4000441C bit@ until \ wait for TC (USART2-ISR)
@@ -10,15 +8,42 @@
   ;
 
 : extra-ioports-disable ( -- )
-  1 bit $4002102C bic!             \ disable PORTB clock (RCC-IOPENR)
+  1 bit 2 bit or $4002102C bic!             \ disable PORTB/C clock (RCC-IOPENR)
   ;
+
+\ this help with 2-3uA
+: highz-gpio
+  IMODE-ADC PA0  io-mode!
+\ IMODE-ADC PA1  io-mode!   \ LED
+  IMODE-ADC PA2  io-mode!
+  IMODE-ADC PA3  io-mode!
+\ IMODE-ADC PA4  io-mode!
+  IMODE-ADC PA5  io-mode!
+  IMODE-ADC PA6  io-mode!
+  IMODE-ADC PA7  io-mode!
+  IMODE-ADC PA9  io-mode!
+  IMODE-ADC PA10 io-mode!
+  IMODE-ADC PA13 io-mode!
+  IMODE-ADC PA14 io-mode!
+  IMODE-ADC PB1  io-mode!
+  IMODE-ADC PC14 io-mode!
+  IMODE-ADC PC15 io-mode! ;
 
 : stop10s   ( -- )  \ sleep in low-power for 10 sec
   370000 stop-freq ;
 
-: lp-blink ( -- ) usart2-disable  led-on 10 ms led-off  only-msi  begin  stop10s led iox!  again ;
+: sleep ( -- ) [ $BF30 h, ] inline ; \ WFI Opcode, enters sleep mode
 
-rf-init rf-sleep
-led-off 2.1MHz 1000 systick-hz
-lptim-init extra-ioports-disable
-\ lp-blink
+: lp-blips ( -- )
+  led-off  rf-init rf-sleep  \ led off, radio sleep
+  2.1MHz 1000 systick-hz  \ slow down the clock, adjust systick accordingly
+  lptim-init              \ initialise the low-power timer
+  highz-gpio              \ correct mode for pins (not much difference?)
+  usart2-disable          \ doesn't seems to make any measurable difference (?)
+  extra-ioports-disable   \ again no measurable difference
+  only-msi
+  begin
+    led-on sleep led-off  \ a very short 1ms LED blip, but still visible
+    stop10s               \ enter stop mode for approx 10 seconds
+  again ;
+
