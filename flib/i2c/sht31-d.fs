@@ -51,8 +51,8 @@
   6 i2c-xfer drop  i2c> 8 lshift i2c> or  i2c> drop
   i2c> 8 lshift i2c> or  i2c> drop ;
 
-: sht-conv-hum ( hraw -- h )
-  100 * 16 rshift ;
+: sht-conv-hum ( hraw -- h100 )
+  10000 * 16 rshift ;
   
 : sht-conv-temp ( traw -- t100 )
   17500 * 16 rshift 4500 - ;
@@ -63,7 +63,8 @@
 : sht-ticker ( -- )
   begin
     sht-getmeas
-    ." Humidity: " sht-conv-hum . ." %RH    Temperature: "
+    ." Humidity: " sht-conv-hum 0 100 0 f/ 1 f.n
+    ." %RH    Temperature: "
     sht-conv-temp 0 100 0 f/ 1 f.n  ." degree Celsius" cr
     2000 ms
   key? until

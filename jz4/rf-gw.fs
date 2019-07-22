@@ -29,7 +29,7 @@ task: rflistentask
     107 rf.group !
     rf-init
     26 rf-power
-    \ enckey rf-encrypt
+    enckey rf-encrypt
     0 rf.last !
     begin
       rf-recv ?dup if
