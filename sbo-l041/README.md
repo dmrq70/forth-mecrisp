@@ -32,6 +32,20 @@ with `ex/sleep-test.fs`, running `lp-blips`.
 * Powered by 5V through the regulator: 7-8uA.
 * Powered by 3.3V through the regulator: 7-8uA (the regulator is supposed to have
   problems with this).
-* Powered directly by regulated 3.3V with regulator disconnected from the vdd net: 2uA. (!)
-* Powered directly by regulated 3.3V with regulator *not* disconnected from the vdd net (so effectively back-powering the regulator): 9-10uA.
+* Powered directly by regulated 3.3V with regulator disconnected from the vdd
+  net: 2uA. (!)
+* Powered directly by regulated 3.3V with regulator *not* disconnected from the
+  vdd net (so effectively back-powering the regulator): 9-10uA.
+
+## deploy-sht31
+
+Runs on the _deploy_ board, with SHT31-D sensor wired up to it. (I got
+[this one](https://www.tindie.com/products/closedcube/sht31-d-digital-humidity-temperature-sensor/)
+from Tindie - comes with a protective filter cover, which is really handy since
+this sensor is intended for the outdoors.) Takes readings and sends them
+over. Consumes 2.5uA in sleep.
+
+I use [this platformio/arduino sketch](https://git.drak.xyz/flabbergast/jee-sensors/src/branch/master/gateway)
+for the [rfm69 board on pocket beagle](https://flabbergast.drak.xyz/posts/pb-rfmcape/)
+as gateway.
 

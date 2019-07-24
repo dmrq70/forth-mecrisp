@@ -36,6 +36,8 @@ include ../flib/stm32l0/i2c-min.fs
 \ include ../flib/stm32l0/timer.fs
 \ include ../flib/stm32l0/pwm.fs
 
+: sleep ( -- ) [ $BF30 h, ] inline ; \ WFI Opcode, enters sleep mode (systick wakes)
+
 : hello ( -- ) flash-kb . ." KB <n041> " hwid hex.
   $8000 compiletoflash here -  flashvar-here compiletoram here -
   ." ram/flash: " . . ." free " ;
@@ -53,8 +55,8 @@ include ../flib/stm32l0/i2c-min.fs
 ;
 
 : rx-connected? ( -- f )  \ true if RX is connected (and idle)
-  IMODE-LOW PA3 io-mode!  PA3 io@ 0<>  OMODE-AF-PP PA3 io-mode!
-  dup if 1 ms serial-key? if serial-key drop then then \ flush any input noise
+  IMODE-LOW PA3 io-mode! sleep PA3 io@ 0<>  OMODE-AF-PP PA3 io-mode!
+  dup if sleep serial-key? if serial-key drop then then \ flush any input noise
 ;
 
 : fake-key? ( -- f )  \ check for RX pin being pulled high

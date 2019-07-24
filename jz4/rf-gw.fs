@@ -16,7 +16,8 @@ compiletoram eint multitask
 : rf-gw-info ( n -- )
   ." OK " rf.buf 1+ c@ u.
   2- 0 do
-    [ rf.buf 2 + literal, ] i + c@ u.
+    \ [ rf.buf 2 + literal, ] i + c@ u. \ not worth doing literal, compiles better without
+    rf.buf 2 + i + c@ u.
   loop
   ."    (RX_RSSI:-" rf.rssi @ 2 / u.2 ." dB) (TO:" rf.buf c@ $3f and u.2 ." ) "
   ." (timestamp:" ticks @ 0 <# #s #> type ." )" cr

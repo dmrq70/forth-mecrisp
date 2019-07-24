@@ -11,7 +11,7 @@
   1 bit 2 bit or $4002102C bic!             \ disable PORTB/C clock (RCC-IOPENR)
   ;
 
-\ this help with 2-3uA
+\ this helps with 2-3uA (maybe)
 : highz-gpio
   IMODE-ADC PA0  io-mode!
 \ IMODE-ADC PA1  io-mode!   \ LED
