@@ -1,0 +1,5 @@
+#!/bin/bash
+
+rm *.p *.hex
+
+asl forth-mecrisp-2433-xt1.asm && p2hex forth-mecrisp-2433-xt1.p -r 0x0000-0xffff
