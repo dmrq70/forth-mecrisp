@@ -43,7 +43,7 @@ $054A constant UCB0TBCNT
 $054C constant UCB0RXBUF
 $054E constant UCB0TXBUF
 $0554 constant UCB0I2C0A0
-$0554 constant UCB0I2C0A1
+$0556 constant UCB0I2C0A1
 $0558 constant UCB0I2C0A2
 $055A constant UCB0I2C0A3
 $055C constant UCB0ADDRX
@@ -52,3 +52,25 @@ $0560 constant UCB0I2CSA
 $056A constant UCB0IE
 $056C constant UCB0IFG
 $056E constant UCB0IV
+
+\ eUSCI_B1
+
+$0580 constant UCB1CTLW0
+$0582 constant UCB1CTLW1
+$0586 constant UCB1BR0
+$0587 constant UCB1BR1
+$0588 constant UCB1STATW
+$058A constant UCB1TBCNT
+$058C constant UCB1RXBUF
+$058E constant UCB1TXBUF
+$0594 constant UCB1I2C0A0
+$0596 constant UCB1I2C0A1
+$0598 constant UCB1I2C0A2
+$059A constant UCB1I2C0A3
+$059C constant UCB1ADDRX
+$059E constant UCB1ADDMASK
+$05A0 constant UCB1I2CSA
+$05AA constant UCB1IE
+$05AC constant UCB1IFG
+$05AE constant UCB1IV
+
