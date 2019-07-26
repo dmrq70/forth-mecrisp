@@ -7,13 +7,10 @@ compiletoflash
 ;
 
 include port-regs.fs
+include timer-regs.fs
 
 : init \ Launchpad hardware initialisations
   ." <FR2433> free(flash/ram): " $D400 compiletoflash here compiletoram - . flashvar-here here - . cr
-   %10001000 P2OUT cbis! \ High
-   %10001000 P2REN cbis! \ Pullups for buttons
-         %11 P1OUT cbic! \ LEDs off
-         %11 P1DIR cbis! \ LEDs are outputs
 ;
 
 : delayticks ( ticks -- ) \ Wait desired number of ticks with 32768 Hz.

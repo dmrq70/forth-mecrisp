@@ -1,4 +1,4 @@
-\ basic analog for FR2433
+\ basic analog for FR24xx
 
 : adc-init ( -- ) \ initialise ADC
   1 1 lshift  ADCCTL0  bic!  \ ADCENC disable
