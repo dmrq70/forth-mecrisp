@@ -67,7 +67,7 @@ Reset: ; Main entry point. Chip specific initialisations go here.
   ;------------------------------------------------------------------------------
   ; Init Clock
 
-  ; 8MHz from FLL, sourced from 32768kHz external crystal (XT1)
+  ; 8MHz from FLL, sourced from 32.768kHz external crystal (XT1)
   ; Adjusted code from forth-mecrisp-2433.asm
 
   bic   #LOCKLPM5, &PM5CTL0         ; Unlock I/O pins

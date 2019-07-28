@@ -24,7 +24,8 @@ task: blinktask
 
 blink& lowpower& tasks
 
-: tick ( -- ) timetask wake ;
+\ : tick ( -- ) timetask wake ;
+: tick ( -- ) blinktask wake ;
 
 1 systick-hz
 ' tick irq-systick !

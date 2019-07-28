@@ -1,9 +1,8 @@
-\ base definitions for STM32L053 / extras
+\ base definitions for STM32L052 / extras
 \ from jcw's embello
 \ needs io-extra.fs
 
-$40010000 constant AFIO
-\    AFIO $4 + constant AFIO-MAPR
+$40010000 constant SYSCFG
 
 $40013800 constant USART1
    USART1 $C + constant USART1-BRR

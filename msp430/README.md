@@ -30,7 +30,7 @@ only 4.5kB space for programs; but it has 4kB of RAM, which is quite
 enough for development and testing.
 
 For me the biggest downside of this one is the clock system and the power
-consequences. There is an internal REFO 32768kHz clock which kicks in
+consequences. There is an internal REFO 32768Hz clock which kicks in
 when there is no external crystal, and consumes 15uA of power come what may.
 (So `lpm3` is about 16uA, `lpm4` goes down to 1.5-2uA but only external
 interrupts for wakeup.) The external crystal requires caps, and even with it
@@ -60,7 +60,7 @@ which takes one of these, and a bunch of files where the constants are defined,
 and produces code with the constants replaced.
 
 The `core` directory contains mecrisp hex files, to be flashed onto the chip.
-The `-xt1` versions require an external 32768kHz crystal to work.
+The `-xt1` versions require an external 32768Hz crystal to work.
 The subdirectories contain mecrisp sources which produce the ones which
 are not part of the standard [mecrisp] distribution. To build, get a [mecrisp]
 tarball, unpack, and copy these source dirs to `mecrisp-source`, go inside,
