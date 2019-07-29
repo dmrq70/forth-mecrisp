@@ -51,7 +51,7 @@ $40006C00 constant CRS
 
 : 48MHz-after-reset ( -- )  \ set the main clock to 48MHz (HSI->PLL) assuming we're out of RESET
   %10001 flash-acr bis!
-  %1000 18 lshift rcc-cfgr !
+  %1010 18 lshift rcc-cfgr !
   24 bit rcc-cr bis!
   begin 25 bit rcc-cr bit@ until
   %10 rcc-cfgr bis!

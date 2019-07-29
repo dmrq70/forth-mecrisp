@@ -1,10 +1,10 @@
 # deploy-sht31
 
-Runs on the [deploy sensor board] (one of the variants of the board I sometimes
-refer to here as _sbo_), with SHT31-D sensor wired up to it. (I got
+Runs on the [deploy sensor board] -- one of the variants of the board I sometimes
+refer to here as _sbo_ -- with SHT31-D sensor wired up to it. I got
 [this one](https://www.tindie.com/products/closedcube/sht31-d-digital-humidity-temperature-sensor/)
 from Tindie - comes with a protective filter cover, which is really handy since
-this sensor is intended for the outdoors.) Takes readings and sends them
+this sensor is intended for the outdoors. Takes readings and sends them
 over. Consumes 2.5uA in sleep.
 
 I use [this platformio/arduino sketch](https://git.drak.xyz/flabbergast/jee-sensors/src/branch/master/gateway)

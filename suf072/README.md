@@ -5,7 +5,7 @@ see [his blog post](http://jeelabs.org/2016/06/standalone-usb-firmware/).
 He has done a really amazing job of getting this running in the first place; in
 his case for F103-based devices.
 I have modified it so that it runs on F072; the primary target for me is the
-[bat board] (with STM32F072CxT6). I have also tried it on 
+[bat board] with STM32F072CxT6.
 
 The assumption is that it runs on a clean Mecrisp Stellaris image, ideally with
 jcw's 'spezial' modification (there are binaries available in this repo in
@@ -29,6 +29,21 @@ done either over USART, or over USB with `dfu-util` - the latter is convenient
 in that no USB-to-serial converter is necessary at all, since everything
 happens over USB.
 
+
+## Version for F042
+
+There is also a version for STM32F042 here; the assumption is the TSSOP-20
+package (so STM32F042F6P6, like [this
+board](https://flabbergast.drak.xyz/posts/arm-breakouts/#stm32f042fxp6)). Just
+a few differences:
+
+* Hal needs to remap PA11/PA12 over PA9/PA10 for USB to work.
+* Expects non-RA mecrisp stellaris (space is tight).
+* `USART2` can not be clocked from HSI, so changing the main clock on these
+  requires changing `BRR` (baud rate) to keep a serial console.
+* The actual USB driver is exactly the same.
+
+
 ### Notes
 
 See also the details about all this (for F103) in jcw's original
@@ -36,7 +51,7 @@ See also the details about all this (for F103) in jcw's original
 
 In particular, `eraseflash` will keep the USB driver/console in, but `$5000 eraseflashfrom`
 erases the USB driver and goes bat to a clean Mecrisp (USART console only). The USB
-driver takes up 6kB of flash. Note that the clean Mecrisp runs the prompt on a particular
+driver takes up 6kB of flash. Note that a clean Mecrisp runs the prompt on a particular
 USART (that was determined when Mecrisp Stellaris was compiled). My images run with TX/RX
 on PA9/PA10, USART1, 115200 baud.
 

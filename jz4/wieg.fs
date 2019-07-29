@@ -92,6 +92,7 @@ false variable w1msg-on \ are we receiving?
 : p1bin ( -- ) \ print w1 bin format
   w1bit @  w1ptr @  w1recv  printwiegbin cr ;
 
+' p1hex variable w1printfn  \ word to use for printing
 
 \ -----
 \ tasks
@@ -106,7 +107,8 @@ task: w1task
       w1bit~us @ 30000 +  micros u< if
         dint
         false w1msg-on !
-        p1hex clear1recv
+        w1printfn @ execute
+        clear1recv
         eint
         LED ioc! 1 ms LED ios!
       then

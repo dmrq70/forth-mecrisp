@@ -3,7 +3,8 @@ STM32L041 with RFM69CW radio.
 
 It runs on both [the dev version](https://flabbergast.drak.xyz/posts/sbo/)
 and the [sensor deploy version](https://flabbergast.drak.xyz/posts/sbo-box/) -
-they've got the same schematic, just the PCBs are different.
+they've got the same schematic (almost - the power jumpers are better
+thought out on the deploy version), just the PCBs are different.
 
 The space is quite tight (32kB flash), of which 16kB is taken up by Mecrisp
 Stellaris core. So I tried to minimize the includes, so various convenience
