@@ -9,7 +9,7 @@ compiletoflash
 include port-regs.fs
 include timer-regs.fs
 
-: init \ Launchpad hardware initialisations
+: init
   ." <FR2433> free(flash/ram): " $D400 compiletoflash here compiletoram - . flashvar-here here - . cr
 ;
 

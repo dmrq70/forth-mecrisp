@@ -1,7 +1,7 @@
 \ sensor board deployed with SHT31-D
 \   when reset with UART connected, it should drop into prompt
 \   otherwise init devices, deinit USART, slow down and periodically send readings
-\ needs board.fs
+\ on_top_of board.fs
 
 <<<board>>>
 compiletoflash
@@ -94,7 +94,7 @@ PKTLEN 1+ buffer: packet  \ 1+ to make the word-sized params aligned (starts at 
 
 
 \ sensor driver
-include ../flib/i2c/sht31-d.fs
+include ../../flib/i2c/sht31-d.fs
 
 : packet-prepare ( -- ) \ get all measurements (separated for testing)
   adc-vcc \ get 1000*vdd

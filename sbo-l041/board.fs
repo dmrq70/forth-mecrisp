@@ -1,5 +1,5 @@
+\ on_top_of always.fs
 \ board definitions
-\ needs always.fs
 
 eraseflash
 compiletoflash

@@ -2,6 +2,7 @@
 \ There have to be 1..10 kΩ resistors on SDA and SCL to pull them up to idle state.
 \ Master only. Supports clock stretching.
 \ hardcoded SCL:P2.4 SDA:P2.5
+\ from templates/i2c-bb-base.fs with g2553/i2c-bb-base.tmplfill
 \ 270 bytes flash
 
 : 0>scl ( -- ) \ drive SCL low

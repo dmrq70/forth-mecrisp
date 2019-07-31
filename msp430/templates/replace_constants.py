@@ -14,6 +14,7 @@ replace_dict = {}
 replace_re = {}
 comments = re.compile(r"(^[^\\]*)(\\.*|$)")
 
+# build replacement dictionary along with regexps that check for occurences
 for filename in args.definitions + [args.template]:
     with open(filename) as f:
         for line in f:
@@ -25,7 +26,7 @@ for filename in args.definitions + [args.template]:
 with open(args.template) as f:
     for line in f:
         s = list(comments.match(line.rstrip()).groups())
-        for nam in replace_re:
+        for nam in sorted(replace_re.keys(),reverse=True): # revsort to avoid sub-name clashes
             upd, k = replace_re[nam].subn(replace_dict[nam], s[0])
             if k > 0:
                 s[0] = upd

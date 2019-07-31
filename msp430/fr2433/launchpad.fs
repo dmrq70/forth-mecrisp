@@ -8,3 +8,5 @@ compiletoflash
         %11 P1OUT cbic! \ LEDs off
         %11 P1DIR cbis! \ LEDs are outputs
   ;
+
+compiletoram

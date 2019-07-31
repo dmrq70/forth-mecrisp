@@ -13,7 +13,7 @@ My main concern (because sensors) is power consumption. So some pros and cons.
 
 This is an amazing one. There is a DIP version of this chip, and with
 Matthias Koch's venerated `lowpower` version of [mecrisp] it runs _prompt_
-on about 2uA (requires external 32768 crystal but no caps). The biggest
+on less than 2uA (requires external 32768 crystal but no caps). The biggest
 downside is space: it's got only 16kB of flash (of which 11kB takes mecrisp),
 and 512 bytes of RAM (of which about 200 is available for the program). It is
 mostly enough for a deployed sensor though (just), but development is a bit
@@ -38,7 +38,8 @@ it is quite a pain to make the MCU use it and switch off REFO. Possible though.
 This makes `lpm3` pretty nice, just like on g2553. However I couldn't quite
 make the prompt lowpower (like on g2553), because I didn't find a way to
 make the UART use the external crystal (XT1) for timing. So it gets shut down
-on `lpm3`, and while it does wake up on RX, the data is garbled.
+on `lpm3`, and while it does wake up on RX, the data is garbled. Maybe
+with lower baud rate?
 
 ### msp430fr2476
 
@@ -46,7 +47,7 @@ Same as fr2433, except 64kB FRAM (only 32kB is below `$FFFF` though, so
 mecrisp only actively uses that), and 8 kB RAM. Also REFO only uses 1uA here,
 so one can get reasonably low power in `lpm3` without any components - about 3uA.
 Comes also in QFP-48 package, so hand solderable.
-The main downside here is _price_.
+The main downside here is the _price_.
 
 ## Structure
 

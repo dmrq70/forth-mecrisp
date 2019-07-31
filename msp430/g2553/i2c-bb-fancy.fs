@@ -1,13 +1,14 @@
 \ bit-banged i2c driver
 \ from jcw's embello
 \ adapted from http://excamera.com/sphinx/article-forth-i2c.html
-\
+
 \ This driver is master-only. It supports clock stretching.
 \ There have to be 1..10 kΩ resistors on SDA and SCL to pull them up to idle state.
 
 \ by flabbergast: hardcoded SCL:P2.4 SDA:P2.5, modified for MSP430
 \   it's more complicated than it really needs to be for basic i2c stuff
-\   898 bytes flash
+\   but it is word compatible with jcw's i2c driver for stm32
+\ = 898 bytes flash
 
 0 variable i2c.adr
 0 variable i2c.nak
@@ -94,6 +95,20 @@
   i2c.nak @
   dup if i2c-stop 0 i2c.cnt ! then  \ ignore reads if we had a nak
 ;
+
+\ extra stuff
+
+: i2c. ( -- )  \ scan and report all I2C devices on the bus
+  128 0 do
+    cr i h.2 ." :"
+    16 0 do  space
+      i j +
+      dup $08 < over $77 > or if drop 2 spaces else
+        dup i2c-addr  0 i2c-xfer  if drop ." --" else h.2 then
+      then
+    loop
+  16 +loop ;
+
 
 
 \ eeprom example (24lc02b, so only one byte address)

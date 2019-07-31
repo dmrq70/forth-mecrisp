@@ -5,5 +5,7 @@ include g6s-base/board.fs
 include g6s-base/core.fs
 
 compiletoflash
+
 include ina219.fs
 
+compiletoram

@@ -54,18 +54,18 @@ decimal align
 
 : rf!mode ( b -- )  \ set the radio mode, and store a copy in a variable
   dup rf.mode !
-  $01 rf@  $E3 and  or $01 rf! \ ($01:RF:OP)
-  begin  $27 rf@  %10000000 and  until ; \ (%10000000:RF:IRQ1_MRDY) \ ($27:RF:IRQ1)
+  RF:OP rf@  $E3 and  or $01 rf!
+  begin  RF:IRQ1 rf@  RF:IRQ1_MRDY and  until ;
 
 : rf-config! ( addr -- ) \ load many registers from <reg,value> array, zero-terminated
-  %00100 rf!mode \ some regs don't program in sleep mode, go figure... \ (%00100:RF:M_STDBY)
+  RF:M_STDBY rf!mode \ some regs don't program in sleep mode, go figure...
   begin  dup @  ?dup while  rf-h!  2+ repeat drop
   ;
 
-: rf-group ( u -- ) $31 rf! ;  \ set the net group (1..250) \ ($31:RF:SYN3)
+: rf-group ( u -- ) RF:SYN3 rf! ;  \ set the net group (1..250)
 
 : rf-check ( b -- )  \ check that the register can be accessed over SPI
-  begin  dup $2F rf!  $2F rf@  over = until \ ($2F:RF:SYN1)
+  begin  dup RF:SYN1 rf!  RF:SYN1 rf@  over = until
   drop ;
 
 : rf-ini ( group -- )  \ internal init of the RFM69 radio module
@@ -75,39 +75,39 @@ decimal align
   rf-group ;
 
 : rf-parity ( -- u )  \ calculate group parity bits
-  $31 rf@ dup 4 lshift xor dup 2 lshift xor $C0 and ; \ ($31:RF:SYN3)
+  RF:SYN3 rf@ dup 4 lshift xor dup 2 lshift xor $C0 and ;
 
 : rf-n@spi ( addr len -- )  \ read N bytes from the FIFO
-  0 do  $00 rf@ over c! 1+  loop drop ; \ ($00:RF:FIFO)
+  0 do  RF:FIFO rf@ over c! 1+  loop drop ;
 : rf-n!spi ( addr len -- )  \ write N bytes to the FIFO
-  0 do  dup c@ $00 rf! 1+  loop drop ; \ ($00:RF:FIFO)
+  0 do  dup c@ RF:FIFO rf! 1+  loop drop ;
 
 \ this is the intended public API for the RF69 driver
 
 : rf-power ( n -- )  \ change TX power level (0..31)
-  $11 rf@ $E0 and or $11 rf! ; \ ($11:RF:PA)
+  RF:PA rf@ $E0 and or RF:PA rf! ;
 
-: rf-sleep ( -- ) %00000 rf!mode ;  \ put radio module to sleep \ (%00000:RF:M_SLEEP)
+: rf-sleep ( -- ) RF:M_SLEEP rf!mode ;  \ put radio module to sleep
 
 : rf-encrypt ( addr -- ) \ load 16 bytes as AES password, enable encryption
-  $3E 16 + $3E do  \ loop by register addr \ ($3E:RF:AES)
+  RF:AES 16 + RF:AES do  \ loop by register addr
     dup c@ dup i rf!  \ write one, leave ( addr b )
     if 1+ then  \ if b <> 0, advance addr
     loop drop
-  $3D rf@ 1 or  $3D rf! ; \ ($3D:RF:PCONF2)
+  RF:PCONF2 rf@ 1 or  RF:PCONF2 rf! ;
 
 : rf-deencrypt ( -- ) \ clear encryption
-  $3D rf@ $FE and  $3D rf! ; \ ($3D:RF:PCONF2)
+  RF:PCONF2 rf@ $FE and  RF:PCONF2 rf! ;
 
 : rf-send ( addr count hdr -- )  \ send out one packet
-  %00100 rf!mode \ (%00100:RF:M_STDBY)
-  over 2+ $00 rf! \ ($00:RF:FIFO)
-  dup rf-parity or $00 rf! \ ($00:RF:FIFO)
-  $C0 and rf.nodeid @ or $00 rf! \ ($00:RF:FIFO)
+  RF:M_STDBY rf!mode
+  over 2+ RF:FIFO rf!
+  dup rf-parity or RF:FIFO rf!
+  $C0 and rf.nodeid @ or RF:FIFO rf!
   ( addr count ) rf-n!spi
-  %01100 rf!mode \ (%01100:RF:M_TX)
-  begin $28 rf@ %00001000 and until \ (%00001000:RF:IRQ2_SENT) \ ($28:RF:IRQ2)
-  %00100 rf!mode ; \ (%00100:RF:M_STDBY)
+  RF:M_TX rf!mode
+  begin RF:IRQ2 rf@ RF:IRQ2_SENT and until
+  RF:M_STDBY rf!mode ;
 
 : rf-init ( -- )  \ init RFM69 with current rf.group
   rf.group @ rf-ini ;
@@ -120,43 +120,43 @@ decimal align
 
 \ rf-timeout checks whether there is an rssi timeout and restarts the receiver if so.
 : rf-timeout ( -- )
-  $27 rf@ %00000100 and if \ (%00000100:RF:IRQ1_TIMEOUT) \ ($27:RF:IRQ1)
-    %01000 rf!mode \ (%01000:RF:M_FS)
+  RF:IRQ1 rf@ RF:IRQ1_TIMEOUT and if
+    RF:M_FS rf!mode
   then ;
 
 \ rf-status fetches the IRQ1 reg, checks whether rx_sync is set and was not set
 \ in rf.last. If so, it saves rssi value; and then updates rf.last.
 \ rf.last ensures that the info is grabbed only once per packet.
 : rf-status ( -- )  \ update status values on sync match
-  $27 rf@  %00000001 and  rf.last @ <> if \ (%00000001:RF:IRQ1_SYNC) \ ($27:RF:IRQ1)
-    rf.last  %00000001 over xor!  @ if \ (%00000001:RF:IRQ1_SYNC)
-      $24 rf@  rf.rssi ! \ ($24:RF:RSSI)
+  RF:IRQ1 rf@  RF:IRQ1_SYNC and  rf.last @ <> if
+    rf.last  RF:IRQ1_SYNC over xor!  @ if
+      RF:RSSI rf@  rf.rssi !
     then
   then ;
 
 \ this is the intended public API for the RF69 driver
 
 : rf-recv ( -- b )  \ check whether a packet has been received, return #bytes
-  rf.mode @ %10000 <> if \ (%10000:RF:M_RX)
+  rf.mode @ RF:M_RX <> if
     0 rf.rssi !
-    %10000 rf!mode \ (%10000:RF:M_RX)
+    RF:M_RX rf!mode
   else rf-timeout rf-status then
-  $28 rf@  %00000010 and if \ (%00000010:RF:IRQ2_CRCOK) \ ($28:RF:IRQ2)
-    $00 rf@ 66 min \ fetch length and limit \ ($00:RF:FIFO)
+  RF:IRQ2 rf@  RF:IRQ2_CRCOK and if
+    RF:FIFO rf@ 66 min \ fetch length and limit
     rf.buf over rf-n@spi
   else 0 then ;
 
 : rf-ack? ( ms -- b ) \ waits ms milliseconds for an ACK and returns #bytes recv'd
   0 rf.rssi !
-  %10000 rf!mode \ (%10000:RF:M_RX)
+  RF:M_RX rf!mode
   0 do
     rf-status \ capture rssi, etc.
-    $28 rf@  %00000010 and if \ (%00000010:RF:IRQ2_CRCOK) \ ($28:RF:IRQ2)
-      $00 rf@ 66 min \ fetch length and limit \ ($00:RF:FIFO)
+    RF:IRQ2 rf@  RF:IRQ2_CRCOK and if
+      RF:FIFO rf@ 66 min \ fetch length and limit
       rf.buf over rf-n@spi
       unloop exit
     then
     1 ms
   loop
-  %00100 rf!mode \ kill RX \ (%00100:RF:M_STDBY)
+  RF:M_STDBY rf!mode \ kill RX
   0 ;

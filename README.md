@@ -63,7 +63,26 @@ Layout
 - `msp430`: this code is for [mecrisp], 16bit forth running on TI's
   MSP430G2553 and MSP430FR2433 MCUs. The space is very tight on these
   (the G2553 with mecrisp has 5kB flash and 160 bytes RAM available).
+- `scripts`: see below
 
+
+scripts
+-------
+
+### `resolve_includes.py`
+
+Pretty much all the forth sources here use the convention of using `include`
+to 'insert the given file here'. [folie] resolves these automatically
+when sending words to a MCU, but since it is not a forth word, anyone _not_
+using [folie] is buggered (there are usually many of `include`s and they can
+be nested).
+
+So this script produces a single self-contained forth source by resolving
+all the `include`s (and optionally also `\ on_top_of <file>`). If you are
+using `*vim`, the included sources should be nicely folded when you open the
+resulting file.
+
+Example: `python3 scripts/resolve_includes.py deploy/sbo-sht31/deploy.fs > sbo-all.txt`
 
 
 [jeenode zero]: https://www.digitalsmarties.net/products/jeenode-zero

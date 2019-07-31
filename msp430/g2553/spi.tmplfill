@@ -1,0 +1,11 @@
+\ spi.tmplfill: template filler for spi driver
+\ compile into constant-free file with
+\   python templates/replace_constants.py templates/g2553-spi.fs g2553/spi.tmplfill g2553/usci-regs.fs g2553/port-regs.fs
+
+    1  constant SPIPIN
+P2OUT  constant SPIOUT
+P2DIR  constant SPIDIR
+P2IN   constant SPIIN
+P1SEL  constant SPISEL
+P1SEL2 constant SPISEL2
+%11100000 constant SPISELBITS

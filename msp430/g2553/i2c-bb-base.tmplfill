@@ -1,6 +1,6 @@
 \ i2c-bb-base.tmplfill: bitbanged i2c driver template filler for MSP430G2553
 \ compile into constant-free file with:
-\   python templates/replace_constants.py templates/i2c-bb-base.fs g2553/i2c-bb-base.tmplfill g2553/pins.fs
+\   python templates/replace_constants.py templates/i2c-bb-base.fs g2553/i2c-bb-base.tmplfill g2553/port-regs.fs
 
 %00010000 constant SCLPIN
 %00100000 constant SDAPIN
