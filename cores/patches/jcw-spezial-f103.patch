@@ -1,0 +1,109 @@
+diff --git a/stm32f103-ra/flash.s b/stm32f103-ra/flash.s
+index 1780751..0092ef6 100644
+--- a/stm32f103-ra/flash.s
++++ b/stm32f103-ra/flash.s
+@@ -49,11 +49,6 @@ h_flashkomma:
+   cmp r0, r3
+   blo 3f
+ 
+-  ldr r3, =FlashDictionaryEnde
+-  cmp r0, r3
+-  bhs 3f
+-
+-
+   @ Prüfe Inhalt. Schreibe nur, wenn es NICHT -1 ist.
+   ldr r3, =0xFFFF
+   ands r1, r3  @ High-Halfword der Daten wegmaskieren
+@@ -70,7 +65,7 @@ h_flashkomma:
+   cmp r2, r3
+   bne 3f
+ 
+-  @ Okay, alle Proben bestanden. 
++  @ Okay, alle Proben bestanden.
+ 
+   @ Im STM32F1 ist der Flash-Speicher gespiegelt, die wirkliche Adresse liegt weiter hinten !
+   @ Flash memory is mirrored, use true address later for write
+@@ -158,6 +153,7 @@ flashpageerase:
+ @ -----------------------------------------------------------------------------
+   Wortbirne Flag_visible, "eraseflash" @ ( -- )
+   @ Löscht den gesamten Inhalt des Flashdictionaries.
++eraseflash:
+ @ -----------------------------------------------------------------------------
+         ldr r0, =FlashDictionaryAnfang
+ eraseflash_intern:
+@@ -184,5 +180,6 @@ eraseflash_intern:
+   Wortbirne Flag_visible, "eraseflashfrom" @ ( Addr -- )
+   @ Beginnt an der angegebenen Adresse mit dem Löschen des Dictionaries.
+ @ -----------------------------------------------------------------------------
++        cpsid i
+         popda r0
+         b.n eraseflash_intern
+diff --git a/stm32f103-ra/mecrisp-stellaris-stm32f103.s b/stm32f103-ra/mecrisp-stellaris-stm32f103.s
+index e9a39d5..4f8ef4f 100644
+--- a/stm32f103-ra/mecrisp-stellaris-stm32f103.s
++++ b/stm32f103-ra/mecrisp-stellaris-stm32f103.s
+@@ -69,12 +69,31 @@ Reset: @ Einsprung zu Beginn
+ @ -----------------------------------------------------------------------------
+    @ Initialisierungen der Hardware, habe und brauche noch keinen Datenstack dafür
+    @ Initialisations for Terminal hardware, without Datastack.
+-   bl uart_init
++@   bl uart_init
+ 
+    @ Catch the pointers for Flash dictionary
+    .include "../common/catchflashpointers.s"
+ 
+-   welcome " for STM32F103 by Matthias Koch"
++@   welcome " for STM32F103 by Matthias Koch"
+ 
+    @ Ready to fly !
+    .include "../common/boot.s"
++
++@ -----------------------------------------------------------------------------
++@  Automatic erase of flash dictionary after initial boot
++@ -----------------------------------------------------------------------------
++
++.p2align 2            @ Align on 4-even before filling up the core space
++
++.org 0x5000, 0xFFFFFFFF @ Synthesise a definition at the beginning of the user flash dictionary
++                        @ which allows catching the dictionary pointers in every case
++                        @ and erases the whole dictionary space - including itself - on the first boot.
++
++ .word  0xFFFFFFFF   @ Empty Link denoting end of dictionary
++ .hword Flag_visible @ Flags normal
++ .byte  4            @ Length
++ .ascii "init"       @ Name
++ .p2align 1          @ Realign
++
++  bl init
++  bl eraseflash
+diff --git a/stm32f103-ra/memmap b/stm32f103-ra/memmap
+index 0b333c5..326cc3d 100644
+--- a/stm32f103-ra/memmap
++++ b/stm32f103-ra/memmap
+@@ -1,7 +1,7 @@
+ 
+ MEMORY
+ {
+-   rom(RX)   : ORIGIN = 0x00000000, LENGTH = 0x5000
++   rom(RX)   : ORIGIN = 0x00000000, LENGTH = 0x5020
+    ram(WAIL) : ORIGIN = 0x20000000, LENGTH = 0x4000
+ }
+ 
+diff --git a/stm32f103-ra/terminal.s b/stm32f103-ra/terminal.s
+index 64e8b4c..ba4e637 100644
+--- a/stm32f103-ra/terminal.s
++++ b/stm32f103-ra/terminal.s
+@@ -72,4 +72,13 @@ uart_init:
+ 
+   bx lr
+ 
++@ -----------------------------------------------------------------------------
++  Wortbirne Flag_visible, "init"
++init:
++@ -----------------------------------------------------------------------------
++  push {lr}
++  bl uart_init
++  welcome " for STM32F103 by Matthias Koch"
++  pop {pc}
++
+   .ltorg @ Hier werden viele spezielle Hardwarestellenkonstanten gebraucht, schreibe sie gleich !

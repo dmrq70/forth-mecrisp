@@ -1,15 +1,15 @@
 diff --git a/stm32l053c8-ra/flash.s b/stm32l053c8-ra/flash.s
-index cc64453..63171f8 100644
+index cc64453..6c9e1b6 100644
 --- a/stm32l053c8-ra/flash.s
 +++ b/stm32l053c8-ra/flash.s
-@@ -181,6 +181,7 @@ flashpageerase:
+@@ -180,6 +180,7 @@ flashpageerase:
+ @ -----------------------------------------------------------------------------
    Wortbirne Flag_visible, "eraseflash" @ ( -- )
    @ Löscht den gesamten Inhalt des Flashdictionaries.
- @ -----------------------------------------------------------------------------
 +eraseflash:
+ @ -----------------------------------------------------------------------------
          ldr r0, =FlashDictionaryAnfang
  eraseflash_intern:
-   cpsid i
 diff --git a/stm32l053c8-ra/mecrisp-stellaris-stm32l053c8.s b/stm32l053c8-ra/mecrisp-stellaris-stm32l053c8.s
 index 1ebdff5..89dae9a 100644
 --- a/stm32l053c8-ra/mecrisp-stellaris-stm32l053c8.s
