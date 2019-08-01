@@ -1,0 +1,338 @@
+\ true hostterminal? !
+new \ Das Dictionary des Crosscompilers zurücksetzen
+\ +jtag
+
+\ <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+TARGET
+\ <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+    
+      42 constant rf.group   \ network group (1..250)
+      61 constant rf.nodeid  \ node ID of this node (1..63)
+
+\ {{{ ===== base words =====
+    : h.2 ( c -- ) \ Print 2 digits hex
+      output-base @  16 output-base !
+      swap 0 <# # # #> type output-base ! ;
+    : us ( us -- ) 0 ?do i i + drop i i + drop loop inline ; \ Für 8 MHz bemessen
+    : ms ( ms -- ) 0 ?do 998 us loop ;
+
+    : hex ( -- ) 16 output-base ! ;
+    : decimal ( -- ) 10 output-base ! ;
+
+    : min ( n1 n2 -- n1|n2 ) 2dup < if drop else nip then ;
+\ }}} ===== end base words =====
+    
+\ {{{ ===== included spi.fs =====
+
+    \ USCI registers (some)
+    $003 constant IFG2
+    %0100 constant IFG2_UCB0RXIFG
+    %1000 constant IFG2_UCB0TXIFG
+
+    $068 constant UCB0CTL0
+    $069 constant UCB0CTL1
+    $06A constant UCB0BR0
+    $06B constant UCB0BR1
+    $06E constant UCB0RXBUF
+    $06F constant UCB0TXBUF
+
+    $041 constant P1SEL2
+
+    \ spi.tmplfill: template filler for spi driver
+        1  constant SPIPIN
+    P2OUT  constant SPIOUT
+    P2DIR  constant SPIDIR
+    P2IN   constant SPIIN
+    P1SEL  constant SPISEL
+    P1SEL2 constant SPISEL2
+    %11100000 constant SPISELBITS
+
+    \ spi driver
+    \   uses USCI_B0 (P1.5 SCK, P1.6 MISO, P1.7 MOSI) {because USCI_A0 is used for USART}
+
+    : +spi ( -- ) SPIPIN SPIOUT cbic! flush ; \ select SPI
+    : -spi ( -- ) SPIPIN SPIOUT cbis! flush ; \ deselect SPI
+
+    : >spi> ( c -- c )  \ hardware SPI, 1 byte in, 1 byte out
+        begin IFG2_UCB0TXIFG IFG2 bit@ until  \ TXbuf ready?
+        $6F c! flush \ send byte (UCB0TXBUF)
+        begin IFG2_UCB0RXIFG IFG2 bit@ until  \ RXbuf ready?
+        UCB0RXBUF c@ flush \ read byte
+        ;
+
+    \ single byte shortcuts
+    : spi> ( -- c ) 0 >spi> ;    \ read byte from SPI
+    : >spi ( c -- ) >spi> drop ; \ write byte to SPI
+
+    : spi-init ( -- )  \ set up hardware SPI
+        -spi  SPIPIN SPIDIR cbis!   \ setup CS pin
+        SPISELBITS SPISEL  cbis!    \ setup SCK|MISO|MOSI pins
+        SPISELBITS SPISEL2 cbis!    \ setup SCK|MISO|MOSI pins
+        1 UCB0CTL1 c! flush         \ put USCI in reset (UCSWRST)
+        %10101001 UCB0CTL0 c!       \ 3-pin 8-bit SPI master (UCCKPH|UCMSB|UCMST|UCSYNC)
+        %11000000 UCB0CTL1 cbis!    \ clock source SMCLK (UCSSELx)
+        2 UCB0BR0 c! 0 UCB0BR1 c!   \ prescaler /8
+        1 UCB0CTL1 cbic!            \ init USCI (UCSWRST)
+        ;
+    
+\ }}} ===== end of included spi.fs =====
+
+\ {{{ ===== included rf69.fs =====
+
+    \ rf69 driver
+    \   - slightly modified version of a pretty smart jcw's driver:
+    \       https://git.jeelabs.org/jcw/embello
+    \   - mainly some 32 vs 16 bit fixes
+    \   - frequency is hardcoded and non-correctable
+    \   - group and node id are constants
+
+    \ NOTE: mecrisp-across automatically eliminates dead code (!!!)
+    \       so it is not necessary to comment out unused parts (e.g. RX)
+    \       the TX part needs about 800 b flash, 6 b RAM
+    \       including rf-listen (so RX and uart) ups this to 1400 b flash,
+    \         76 b RAM (of which 66 b is the receive buffer)
+    \         this doesn't fit into 128 b RAM (half of which are stacks)
+    \       rf-listen without TX takes about 1100 b flash
+    \       all of this is pretty incredible
+    
+    \ {{{ rf69 driver constants
+
+          $00 constant RF:FIFO
+          $01 constant RF:OP
+          $07 constant RF:FRF
+          $11 constant RF:PA
+          $18 constant RF:LNA
+          $1F constant RF:AFC
+          $24 constant RF:RSSI
+          $27 constant RF:IRQ1
+          $28 constant RF:IRQ2
+          $2F constant RF:SYN1
+          $31 constant RF:SYN3
+          $39 constant RF:ADDR
+          $3A constant RF:BCAST
+          $3C constant RF:THRESH
+          $3D constant RF:PCONF2
+          $3E constant RF:AES
+
+       %00000 constant RF:M_SLEEP
+       %00100 constant RF:M_STDBY
+       %01000 constant RF:M_FS
+       %01100 constant RF:M_TX
+       %10000 constant RF:M_RX
+
+          $C2 constant RF:START_TX
+          $42 constant RF:STOP_TX
+          $80 constant RF:RCCALSTART
+
+    %10000000 constant RF:IRQ1_MRDY
+    %01000000 constant RF:IRQ1_RXRDY
+    %00001000 constant RF:IRQ1_RSSI
+    %00000100 constant RF:IRQ1_TIMEOUT
+    %00000001 constant RF:IRQ1_SYNC
+
+    %01000000 constant RF:IRQ2_FIFO_NE
+    %00001000 constant RF:IRQ2_SENT
+    %00000100 constant RF:IRQ2_RECVD
+    %00000010 constant RF:IRQ2_CRCOK
+
+    \ }}}
+    \ {{{ TX part
+    
+       0 variable rf.mode  \ last set chip mode
+    
+    create rf:init  \ initialise the radio, each 16-bit word is <reg#,val>
+      $0200 , \ packet mode, fsk
+      $0302 , $048A , \ bit rate 49,261 hz
+      $0505 , $06C3 , \ 90.3kHzFdev -> modulation index = 2
+      $07D9 , $0813 , $0900 , \ 868.3MHz frequency ( freq[Hz] * 2^19 / 32*10^6, MSB )
+      $0B20 , \ low M
+      $1942 , $1A42 , \ RxBw 125khz, AFCBw 125khz
+      $1E0C , \ AFC auto-clear, auto-on
+      $2607 , \ disable clkout
+      $29C4 , \ RSSI thres -98dB
+      $2B40 , \ RSSI timeout after 128 bytes
+      $2D05 , \ Preamble 5 bytes
+      $2E90 , \ sync size 3 bytes
+      $2FAA , \ sync1: 0xAA -- this is really the last preamble byte
+      $302D , \ sync2: 0x2D -- actual sync byte
+      $312A , \ sync3: network group
+      $37D0 , \ drop pkt if CRC fails \ 37D8 h, \ deliver even if CRC fails
+      $3842 , \ max 62 byte payload
+      $3C8F , \ fifo thres
+      $3D12 , \ PacketConfig2, interpkt = 1, autorxrestart on
+      $6F20 , \ Test DAGC
+      $7102 , \ RegTestAfc
+      0 ,  \ sentinel
+    endcreate
+    
+    \ r/w access to the RF registers
+    : rf!@ ( b reg -- b ) +spi >spi >spi> -spi ;
+    : rf! ( b reg -- ) $80 or rf!@ drop ;
+    : rf@ ( reg -- b ) 0 swap rf!@ ;
+    
+    : rf-h! ( h -- ) dup $FF and swap 8 rshift rf! ;
+    
+    : rf!mode ( b -- )  \ set the radio mode, and store a copy in a variable
+      dup rf.mode !
+      RF:OP rf@  $E3 and  or $01 rf!
+      begin  RF:IRQ1 rf@  RF:IRQ1_MRDY and  until ;
+    
+    : rf-config! ( addr -- ) \ load many registers from <reg,value> array, zero-terminated
+      RF:M_STDBY rf!mode \ some regs don't program in sleep mode, go figure...
+      begin  dup @  ?dup while  rf-h!  2+ repeat drop
+      ;
+    
+    : rf-group ( u -- ) RF:SYN3 rf! ;  \ set the net group (1..250)
+    
+    : rf-check ( b -- )  \ check that the register can be accessed over SPI
+      begin  dup RF:SYN1 rf!  RF:SYN1 rf@  over = until
+      drop ;
+    
+    : rf-ini ( group -- )  \ internal init of the RFM69 radio module
+      spi-init
+      $AA rf-check  $55 rf-check  \ will hang if there is no radio!
+      rf:init rf-config!
+      rf-group ;
+    
+    : rf-parity ( -- u )  \ calculate group parity bits
+      rf.group dup 4 lshift xor dup 2 lshift xor $C0 and ;
+    
+    : rf-n@spi ( addr len -- )  \ read N bytes from the FIFO
+      0 do  RF:FIFO rf@ over c! 1+  loop drop ;
+    : rf-n!spi ( addr len -- )  \ write N bytes to the FIFO
+      0 do  dup c@ RF:FIFO rf! 1+  loop drop ;
+    
+    \ this is the intended public API for the RF69 driver
+    
+    : rf-power ( n -- )  \ change TX power level (0..31)
+      RF:PA rf@ $E0 and or RF:PA rf! ;
+    
+    : rf-sleep ( -- ) RF:M_SLEEP rf!mode ;  \ put radio module to sleep
+    
+    : rf-encrypt ( addr -- ) \ load 16 bytes as AES password, enable encryption
+      RF:AES 16 + RF:AES do  \ loop by register addr
+        dup c@ dup i rf!  \ write one, leave ( addr b )
+        if 1+ then  \ if b <> 0, advance addr
+        loop drop
+      RF:PCONF2 rf@ 1 or  RF:PCONF2 rf! ;
+    
+    : rf-deencrypt ( -- ) \ clear encryption
+      RF:PCONF2 rf@ $FE and  RF:PCONF2 rf! ;
+    
+    : rf-send ( addr count hdr -- )  \ send out one packet
+      RF:M_STDBY rf!mode
+      over 2+ RF:FIFO rf!
+      dup rf-parity or RF:FIFO rf!
+      $C0 and rf.nodeid or RF:FIFO rf!
+      ( addr count ) rf-n!spi
+      RF:M_TX rf!mode
+      begin RF:IRQ2 rf@ RF:IRQ2_SENT and until
+      RF:M_STDBY rf!mode ;
+    
+    : rf-init ( -- )  \ init RFM69 with current rf.group
+      rf.group rf-ini ;
+    
+    \ }}}
+    \ {{{ RX part
+    
+       0 variable rf.last  \ flag used to fetch RSSI only once per packet
+       0 variable rf.rssi  \ RSSI signal strength of last reception
+      66 buffer:  rf.buf   \ buffer with last received packet data
+
+    \ rf-timeout checks whether there is an rssi timeout and restarts the receiver if so.
+    : rf-timeout ( -- )
+      RF:IRQ1 rf@ RF:IRQ1_TIMEOUT and if
+        RF:M_FS rf!mode
+      then ;
+    
+    \ rf-status fetches the IRQ1 reg, checks whether rx_sync is set and was not set
+    \ in rf.last. If so, it saves rssi value; and then updates rf.last.
+    \ rf.last ensures that the info is grabbed only once per packet.
+    : rf-status ( -- )  \ update status values on sync match
+      RF:IRQ1 rf@  RF:IRQ1_SYNC and  rf.last @ <> if
+        rf.last  RF:IRQ1_SYNC over xor!  @ if
+          RF:RSSI rf@  rf.rssi !
+        then
+      then ;
+    
+    \ this is the intended public API for the RF69 driver
+    
+    : rf-recv ( -- b )  \ check whether a packet has been received, return #bytes
+      rf.mode @ RF:M_RX <> if
+        0 rf.rssi !
+        RF:M_RX rf!mode
+      else rf-timeout rf-status then
+      RF:IRQ2 rf@  RF:IRQ2_CRCOK and if
+        RF:FIFO rf@ 66 min \ fetch length and limit
+        rf.buf over rf-n@spi
+      else 0 then ;
+    
+    \ }}}
+    \ {{{ extras
+    
+    : rf-info ( -- )  \ display reception parameters as hex string
+      rf.group h.2 rf.rssi @ h.2 ;
+    
+    : rf-listen ( -- )  \ report incoming packets until key press
+      rf-init cr
+      0 rf.last !
+      begin
+        rf-recv ?dup if
+          \ ." RF69 " rf-info
+          82 emit 70 emit 54 emit 57 emit space rf-info
+          dup 0 do
+            rf.buf i + c@ h.2
+            i 1 = if 2- h.2 space then
+          loop  cr
+        then
+      key? until ;
+    
+    : rf-txtest ( n -- )  \ send out a test packet with the number as ASCII chars
+      rf-init   16 rf-power   0 <# #s #> 0 rf-send ;
+
+    \ }}}
+    
+\ }}} ===== end of included rf69.fs =====
+
+\ {{{ ===== main =====
+
+: main ( -- )
+  8MHz uart-init
+  rf.group emit
+  10 0 do
+      65 i + emit
+  loop
+  rf-init
+  \ 12345 rf-txtest
+  begin
+    key
+    emit
+  again
+  \ rf-listen
+;
+
+\ }}} ===== main =====
+
+\ <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+HOST
+\ <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+
+$FFFE vector main  \ Vektortabelle füllen und Einsprungpunkte definieren
+crosscompile       \ Zeit für die Crosscompilation !
+
+\ -----------------------------------------------------------------------------
+
+\ flashtarget
+\ -jtag
+\ run
+
+\ t-listing
+t-listing-file radio.list
+
+\ disimage
+disimage-file radio.asm
+
+\ hexdump
+hexdump-file radio.hex
+
+\ vim: filetype=forth:foldmethod=marker:

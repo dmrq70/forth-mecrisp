@@ -1,0 +1,210 @@
+new \ Das Dictionary des Crosscompilers zurücksetzen
+
+\ +jtag \ Mit dem Zielchip verbinden
+
+\ <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+    TARGET
+\ <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+
+3 constant analog-pin
+4 constant probe-pin
+
+1 probe-pin lshift constant probe-bitmask
+
+1 5 lshift constant led-cathode
+1 6 lshift constant led
+
+
+: logic ( -- )
+
+  ( low high level detected )
+  false false
+
+  \ Dies gibt an, wie schnell der Logikprüfstift reagiert. Sollte etwa 0.05 s sein, damit der Stift mit 10 Hz blinkt, falls ein Pulszug reinkommt.
+  60000 0 do
+    p1in c@ flush dup >r or swap r> not or swap
+  loop
+
+  \ Die richtige Bitstelle maskieren, an der tatsächlich der Logikzustand zu sehen ist:
+  probe-bitmask and swap probe-bitmask and swap
+
+  led p1out cbit@
+  if \ Indikator war gerade high
+    if led p1out cbis! then \ An für High
+    if led p1out cbic! then \ Falls in der Zwischenzeit ein Low-Pegel gesehen wurde, jetzt ausschalten.
+  else
+    swap \ Low zuerst prüfen
+    if led p1out cbic! then \ Aus für Low
+    if led p1out cbis! then \ Falls in der Zwischenzeit ein High-Pegel gesehen wurde, jetzt einschalten.
+  then
+
+;
+
+
+
+$01B0 constant ADC10CTL0      \ control register 0
+$01B2 constant ADC10CTL1      \ control register 0
+$01B4 constant ADC10MEM       \ memory
+$004A constant ADC10AE0       \ input enable register 0, Byte
+$004B constant ADC10AE1       \ input enable register 1, Byte
+
+
+\ ------------------------------------------------------------------------------
+\ ADC10 - Konstanten für den Control Register 0
+\ ------------------------------------------------------------------------------
+
+\ Auswahl der Spannungsreferenz, Bit 15-13
+\ 5432109876543210
+ %0000000000000000 constant SREF_0         \ VR+ = AVCC and VR- = AVSS
+ %0010000000000000 constant SREF_1         \ VR+ = VREF+ and VR- = AVSS
+ %0100000000000000 constant SREF_2         \ VR+ = VEREF+ and VR- = AVSS
+ %0110000000000000 constant SREF_3         \ VR+ = buffered VEREF+ and VR- = AVSS
+ %1000000000000000 constant SREF_4         \ VR+ = AVCC and VR- = VREF-/VEREF-
+ %1010000000000000 constant SREF_5         \ VR+ = VREF+ and VR- = VREF-/VEREF-
+ %1100000000000000 constant SREF_6         \ VR+ = VEREF+ and VR- = VREF-/VEREF-
+ %1110000000000000 constant SREF_7         \ VR+ = buffered VEREF+ and VR- = VREF-/VEREF-
+
+\ sample-and-hold time, Bits 12-11
+\ 5432109876543210
+ %0000000000000000 constant ADC10SHT_0      \ 4 x ADC10CLKs
+ %0000100000000000 constant ADC10SHT_1      \ 8 x ADC10CLKs
+ %0001000000000000 constant ADC10SHT_2      \ 16 x ADC10CLKs
+ %0001100000000000 constant ADC10SHT_3      \ 64 x ADC10CLKs
+\ 5432109876543210
+ %0000000000000001 constant ADC10SC
+ %0000000000000010 constant ENC
+ %0000000000000100 constant ADC10IFG
+ %0000000000001000 constant ADC10IE
+ %0000000000010000 constant ADC10ON
+ %0000000000100000 constant REFON
+ %0000000001000000 constant REF2_5V
+ %0000000010000000 constant MSC
+ %0000000100000000 constant REFBURST
+ %0000001000000000 constant REFOUT
+ %0000010000000000 constant ADC10SR
+
+
+\ ------------------------------------------------------------------------------
+\ ADC10 - Konstanten für den Control Register 1
+\ ------------------------------------------------------------------------------
+
+\ Eingangskanal, Bits 15-12
+\ 5432109876543210
+ %0000000000000000 constant INCH_0
+ %0001000000000000 constant INCH_1
+ %0010000000000000 constant INCH_2
+ %0011000000000000 constant INCH_3
+ %0100000000000000 constant INCH_4
+ %0101000000000000 constant INCH_5
+ %0110000000000000 constant INCH_6
+ %0111000000000000 constant INCH_7
+ %1000000000000000 constant INCH_8
+ %1001000000000000 constant INCH_9
+ %1010000000000000 constant INCH_10
+ %1011000000000000 constant INCH_11
+ %1100000000000000 constant INCH_12         \ Selects Channel 11
+ %1101000000000000 constant INCH_13         \ Selects Channel 11
+ %1110000000000000 constant INCH_14         \ Selects Channel 11
+ %1111000000000000 constant INCH_15         \ Selects Channel 11
+
+\ sample-and-hold source select, Bits 11-10
+\ 5432109876543210
+ %0000000000000000 constant SHS_0           \ ADC10SC - bit
+ %0000010000000000 constant SHS_1           \ TA OUT1
+ %0000100000000000 constant SHS_2           \ TA OUT0
+ %0000110000000000 constant SHS_3           \ TA OUT2
+
+ %0000001000000000 constant ADC10DF         \ Data format
+ %0000000100000000 constant ISSH            \ invert singnal sample-and-hold
+
+\ Taktteiler, Bits 7-5
+\ 5432109876543210
+%0000000000000000 constant ADC10DIV_0
+%0000000000100000 constant ADC10DIV_1
+%0000000001000000 constant ADC10DIV_2
+%0000000001100000 constant ADC10DIV_3
+%0000000010000000 constant ADC10DIV_4
+%0000000010100000 constant ADC10DIV_5
+%0000000011000000 constant ADC10DIV_6
+%0000000011100000 constant ADC10DIV_7
+
+\ clock source select, Bits 4-3
+\ 5432109876543210
+ %0000000000000000 constant ADC10SSEL_0     \ ADC10OSC
+ %0000000000001000 constant ADC10SSEL_1     \ ACLK
+ %0000000000010000 constant ADC10SSEL_2     \ MCLK
+ %0000000000011000 constant ADC10SSEL_3     \ SMCLK
+
+\ conversion sequenze mode select, Bits 2-1
+\ 5432109876543210
+ %0000000000000000 constant CONSEQ_0       \ Single channel single conversion
+ %0000000000000010 constant CONSEQ_1       \ Sequence of channels
+ %0000000000000100 constant CONSEQ_2       \ Repeat single channel
+ %0000000000000110 constant CONSEQ_3       \ Repeat sequence of channels
+
+ %0000000000000001 constant ADC10BUSY
+
+
+
+: analog-vcc ( channel -- result )
+
+  ENC ADC10CTL0 bic! \ Switch off ADC to change its configuration !
+
+  ( channel ) 12 lshift    \ The topmost 4 bits choose one of the 16 input channels.
+  ADC10SSEL_0 or           \ Single shot, select clock: ADC10OSC / 4
+  ADC10DIV_3  or
+  CONSEQ_0    or ADC10CTL1 !
+
+  SREF_0 ADC10SHT_3 ADC10ON or or ADC10CTL0 ! \ Reference Vcc
+
+  ENC ADC10SC or ADC10CTL0 bis! \ Start sampling/conversion
+
+  begin ADC10BUSY ADC10CTL1 bit@ not until  \ ADC10BUSY? Wait for finished sampling
+
+  ADC10MEM @ \ Return conversion result
+
+;
+
+
+1024 2/ 50 - constant open-low
+1024 2/ 50 + constant open-high
+
+: sample ( -- )
+  \ Analog einlesen um zu schauen, ob es ein Floating-Eingang ist.
+  analog-pin analog-vcc
+
+  dup open-low u> swap open-high u< and
+  if
+    led p1out cbis!
+    10 0 do loop
+    led p1out cbic!
+  else
+    \ Normaler GPIO-Eingang
+    logic
+  then
+;
+
+: logicprobe ( -- )
+
+  8MHz
+
+  1 analog-pin lshift ADC10AE0 c!
+
+  led led-cathode or p1dir c!
+                   0 p1out c!
+
+  begin
+    sample
+  again
+;
+
+
+\ <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+    HOST
+\ <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+
+$FFFE vector logicprobe   crosscompile   \ flashtarget -jtag run  \ Vektortabelle füllen, Einsprungpunkte definieren, Crosscompilation, Flashen des Zielchips
+
+ t-listing-file logictest.list
+  disimage-file logictest.asm
+   hexdump-file logictest.hex

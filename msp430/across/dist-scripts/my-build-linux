@@ -1,0 +1,13 @@
+#!/bin/bash
+
+cd msp430g2553-binaries
+stty -icanon -echo
+{
+   cat ../my-mecrisp-across-linux.txt
+   echo -e "bye\n"
+} | qemu-arm ../helpers/mecrisp-stellaris-linux
+stty sane
+
+mv mecrisp-stellaris-linux-with-mecrisp-across ../my-mecrisp-stellaris-linux-with-mecrisp-across
+
+cd ..

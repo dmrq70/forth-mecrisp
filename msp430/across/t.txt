@@ -1,0 +1,44 @@
+new \ Das Dictionary des Crosscompilers zurücksetzen
+
+\ <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+    TARGET
+\ <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+
+create answer 42 , endcreate
+
+\ : ehm <builds 42 , does> ;
+\ ehm answer
+
+: main ( -- )
+  8MHz uart-init
+  answer . \ @ emit
+  begin
+    key
+    emit
+  again
+;
+
+\ <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+    HOST
+\ <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+
+$FFFE vector main  \ Vektortabelle füllen und Einsprungpunkte definieren
+crosscompile            \ Zeit für die Crosscompilation !
+
+\ -----------------------------------------------------------------------------
+
+\ Was hat der Compiler daraus gemacht ?
+
+\ t-listing
+t-listing-file t.list
+
+\ Was ist entstanden ? Einen tiefen Einblick für den Menschen ermöglichen.
+
+\ disimage
+disimage-file t.asm
+
+\ Und die fertige Intel-Hex-Datei für den Chip ausgeben.
+
+\ hexdump
+hexdump-file t.hex
+

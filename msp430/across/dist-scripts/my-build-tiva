@@ -1,0 +1,21 @@
+#!/bin/bash
+
+cd helpers/thumbulator
+
+stty -icanon -echo
+
+{
+   echo -e "compiletoflash\n"
+   cat ../../my-mecrisp-across-tiva.txt
+   echo -e "compiletoflash here hex DABBAD00 !\n"
+   # cat -
+} | ./thumbulator ../mecrisp-stellaris-tm4c1294.bin
+
+stty sane
+
+echo -e ""
+
+mv coredump.bin ../../my-mecrisp-stellaris-tm4c1294-with-mecrisp-across.bin
+
+cd ../..
+

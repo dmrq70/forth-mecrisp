@@ -1,0 +1,8 @@
+#!/bin/bash
+
+stty -icanon -echo
+{
+   cat $1
+   echo -e "bye\n"
+} | qemu-arm mecrisp-stellaris-linux-with-mecrisp-across
+stty sane
