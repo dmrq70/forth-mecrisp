@@ -69,7 +69,7 @@ Layout
 scripts
 -------
 
-### `resolve_includes.py`
+### resolve_includes.py
 
 Pretty much all the forth sources here use the convention of using `include`
 to 'insert the given file here'. [folie] resolves these automatically
@@ -85,6 +85,21 @@ resulting file.
 Example: `python3 scripts/resolve_includes.py deploy/sbo-sht31/deploy.fs > sbo-all.txt`
 
 
+license
+-------
+
+This repo does not contain a single "project", and some files come from
+someone else. Some from [Jean-Claude Wippler][embello] (these are in the
+public domain). Some from [Matthias Koch][mecrisp]: these are patches or
+extensions to his amazing [mecrisp] and variants. These are GPL-licensed,
+and this is indicated by the license statement at the beginning of each
+such file. (This means that anything "released" which uses [mecrisp] core
+also needs to be GPL-licensed.)
+
+I release my own code/words into public domain: [unlicense]. So use as you
+like; no warranties. A mention would be nice.
+
+
 [jeenode zero]: https://www.digitalsmarties.net/products/jeenode-zero
 [embello]: https://git.jeelabs.org/jcw/embello
 [folie]: https://git.jeelabs.org/jcw/folie
@@ -95,3 +110,4 @@ Example: `python3 scripts/resolve_includes.py deploy/sbo-sht31/deploy.fs > sbo-a
 [bat board]: https://flabbergast.drak.xyz/bat-board
 [sbo]: https://flabbergast.drak.xyz/posts/sbo
 [suf]: http://jeelabs.org/2016/06/standalone-usb-firmware
+[unlicense]: https://unlicense.org/
