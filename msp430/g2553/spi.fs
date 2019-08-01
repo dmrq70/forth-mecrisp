@@ -1,6 +1,6 @@
 \ MSP430(G2553) SPI driver
 \   uses USCI_B0 (P1.5 SCK, P1.6 MISO, P1.7 MOSI) {because USCI_A0 is used for USART}
-\   (c) 2019 flabbergast
+\   2019 flabbergast
 \   from templates/g2553-spi.fs with g2553/spi.tmplfill
 \   hardcoded P2.0 for CS
 

@@ -2,6 +2,7 @@
 
 import re
 import argparse
+import sys
 
 argparser = argparse.ArgumentParser(description='Replace constants in forth sources by values. No files changed, output will be send to stdout.')
 argparser.add_argument('template', help='Base template on which replacements should be made')
@@ -13,6 +14,8 @@ get_const = re.compile("^(?:\s*|\\\\ @ +)(?P<value>[%$#]?\w+)\s+(?:constant|CONS
 replace_dict = {}
 replace_re = {}
 comments = re.compile(r"(^[^\\]*)(\\.*|$)")
+
+print("\ generated from template: %s" % (" ".join(sys.argv[:])))
 
 # build replacement dictionary along with regexps that check for occurences
 for filename in args.definitions + [args.template]:

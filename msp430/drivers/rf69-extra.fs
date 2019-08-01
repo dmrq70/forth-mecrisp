@@ -10,6 +10,9 @@
     loop
   $10 +loop ;
 
+: rf-info ( -- )  \ display reception parameters as hex string
+  rf.group @ h.2 rf.rssi @ h.2 ;
+
 : rf-listen ( -- )  \ report incoming packets until key press
   rf-init cr
   0 rf.last !
