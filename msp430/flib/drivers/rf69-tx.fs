@@ -1,4 +1,4 @@
-\ generated from template: ./replace-constants.py rf69-tx.fs rf69-constants.fs
+\ generated from template: ./replace-constants.py rf69-tx.template rf69-constants.fs
 \ rf69 driver; TX part
 \ needs spi
 \ = 1092 bytes flash

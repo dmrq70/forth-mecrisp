@@ -2,12 +2,9 @@
 
 compiletoflash
 
-: cornerstone ( Name ) ( -- )
-  <builds does> eraseflashfrom
-;
-
-include port-regs.fs
-include timer-regs.fs
+include ../flib/mecrisp/cornerstone-fram.txt
+include ../flib/fr2433/port-regs.fs
+include ../flib/fr2433/timer-regs.fs
 
 : init
   ." <FR2433> free(flash/ram): " $D400 compiletoflash here compiletoram - . flashvar-here here - . cr

@@ -1,4 +1,4 @@
-\ generated from template: ./replace-constants.py rf69-rx.fs rf69-constants.fs
+\ generated from template: ./replace-constants.py rf69-rx.template rf69-constants.fs
 \ rf69 driver; RX part
 \ needs spi
 \ needs rf69-tx.fs

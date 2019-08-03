@@ -1,8 +1,7 @@
+\ generated from template: ../templates/replace_constants.py spi.template spi.tmplfill usci-regs.fs port-regs.fs
 \ MSP430(G2553) SPI driver
 \   uses USCI_B0 (P1.5 SCK, P1.6 MISO, P1.7 MOSI) {because USCI_A0 is used for USART}
 \   2019 flabbergast
-\   from templates/g2553-spi.fs with g2553/spi.tmplfill
-\   hardcoded P2.0 for CS
 
 : +spi ( -- ) 1 $29 cbic! ; \ select SPI \ (1:SPIPIN) \ (P2OUT:SPIOUT) \ ($29:P2OUT)
 : -spi ( -- ) 1 $29 cbis! ; \ deselect SPI \ (1:SPIPIN) \ (P2OUT:SPIOUT) \ ($29:P2OUT)
@@ -20,7 +19,7 @@
 
 : spi-init ( -- )  \ set up hardware SPI
     -spi  1 $2A cbis!   \ setup CS pin \ (1:SPIPIN) \ (P2DIR:SPIDIR) \ ($2A:P2DIR)
-    %11100000 $26 cbis!    \ setup SCK|MISO|MOSI pins \ (%11100000:SPISELBITS) \ (P1SEL:SPISEL) \ ($26:P1SEL)
+    %11100000 $26  cbis!    \ setup SCK|MISO|MOSI pins \ (%11100000:SPISELBITS) \ (P1SEL:SPISEL) \ ($26:P1SEL)
     %11100000 $41 cbis!    \ setup SCK|MISO|MOSI pins \ (%11100000:SPISELBITS) \ (P1SEL2:SPISEL2) \ ($41:P1SEL2)
     1 $069 c!               \ put USCI in reset (UCSWRST) \ ($069:UCB0CTL1)
     %10101001 $068 c!       \ 3-pin 8-bit SPI master (UCCKPH|UCMSB|UCMST|UCSYNC) \ ($068:UCB0CTL0)

@@ -1,11 +1,9 @@
 \ MSP430FR2476 Launchpad-specific words
 
-compiletoflash
-
-include ../fr24xx/adc-regs.fs
-include ../fr24xx/pmm-regs.fs
-include ../fr24xx/analog.fs
-include ../fr24xx/sys-regs.fs
+include ../flib/fr24xx/adc-regs.fs
+include ../flib/fr24xx/pmm-regs.fs
+include ../flib/fr24xx/analog.fs
+include ../flib/fr24xx/sys-regs.fs
 
 1 variable vcc
 
@@ -31,6 +29,4 @@ include ../fr24xx/sys-regs.fs
 : temp ( -- t10 ) \ read temp from onboard TMP235
   1 analog  vcc @  1024 */  500 -
   ;
-  
-cornerstone <<launchpad>>
-compiletoram
+

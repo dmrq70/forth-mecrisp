@@ -13,7 +13,7 @@ compiletoflash
 ;
 
 \ Measure Vcc/2 on analog channel 11 with 2.5V reference.
-: vcc. 0  11 analog  204,6 f/ 2 f.n ." V " ; 
+: vcc. 0  11 analog  204,6 f/ 2 f.n ." V " ;
 
 : delayticks ( ticks -- ) \ Wait desired number of ticks with 32768 Hz.
 \ Second Timer, free

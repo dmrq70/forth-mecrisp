@@ -1,4 +1,4 @@
-\ generated from template: templates/replace_constants.py templates/i2c-bb-base.fs g2553/i2c-bb-base.tmplfill g2553/port-regs.fs
+\ generated from template: templates/replace_constants.py templates/i2c-bb-base.template g2553/i2c-bb-base.tmplfill g2553/port-regs.fs
 \ bit-banged i2c driver, base words
 \ There have to be 1..10 kΩ resistors on SDA and SCL to pull them up to idle state.
 \ Master only. Supports clock stretching.

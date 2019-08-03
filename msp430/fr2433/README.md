@@ -9,4 +9,4 @@ with the exception of the newer and bigger ones (e.g. FR2476) - some of them
 have 'low power' setting for REFO, and in some REFO eats only 1uA.)
 
 2019-07-24: Finally made it work with the external 32.768kHz crystal; there are
-some comments (and a lot of rubbish) in `test-pwr.fs`. 
+some comments (and a lot of rubbish) in `test-pwr.fs`.
