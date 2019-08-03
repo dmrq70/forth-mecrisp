@@ -23,11 +23,11 @@ So, getting this on the board requires:
    able to talk to Mecrisp.
 
 This is a bit tedious, so instead you can just upload
-`mecrisp-2.5.0-bat-f072usb.bin` from this directory - it is the result of the above
-process, with Mecrisp Stellaris 2.5.0 core with 'spezial' patch. This can be
-done either over USART, or over USB with `dfu-util` - the latter is convenient
-in that no USB-to-serial converter is necessary at all, since everything
-happens over USB.
+`mecrisp-2.5.0-bat128-f072usb.bin` (or ...`bat064`... if you have 64kB F072)
+from this directory - it is the result of the above process, with Mecrisp
+Stellaris 2.5.0 core with 'spezial' patch. This can be done either over USART,
+or over USB with `dfu-util` - the latter is convenient in that no USB-to-serial
+converter is necessary at all, since everything happens over USB.
 
 
 ## Version for F042
