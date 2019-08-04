@@ -16,7 +16,8 @@
 ;
 
 : fake-key? ( -- f )  \ check for RX pin being pulled high
-  rx-connected? if reset then false ;
+  false ; \ well, do nothing
+\  rx-connected? if reset then false ;
 
 : unattended
   rx-connected? if quit then \ return to command prompt

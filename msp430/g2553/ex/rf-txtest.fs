@@ -1,7 +1,7 @@
 compiletoflash
 
-include ../flib/g2553/spi.fs
-include ../flib/drivers/rf69-tx.fs
+include ../../flib/g2553/spi.fs
+include ../../flib/drivers/rf69-tx.fs
 
 : enckey s" beleampanchineto" drop ;
 

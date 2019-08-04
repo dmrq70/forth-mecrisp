@@ -36,9 +36,14 @@ include ../flib/drivers/rf69-tx.fs
 include ../flib/g2553/i2c-bb-base.fs
 include ../flib/drivers/i2c-bb.fs
 
-: tie-free-pins ( -- )
-  %00011001 $22 cbis! \ for uart add %110 ($22:P1DIR)
-  %00001110 $2A cbis! \ for i2c add %110000 ($2A:P2DIR)
+: unfree-pins ( -- )
+  %00011001 dup $22 cbis! $21 cbic! \ for uart add %110 ($22:P1DIR) ($21:P1OUT)
+  %00001110 dup $2A cbis! $29 cbic! \ for i2c add %110000 ($2A:P2DIR) ($29:P2OUT)
+  ;
+
+: analog-off ( -- )
+  %10 $1b0 bic! \ dis ENC \ ($1b0:ADC10CTL0)
+  %110000 $1b0 bic! \ dis REFON|ADC10ON \ ($1b0:ADC10CTL0)
   ;
 
 compiletoram

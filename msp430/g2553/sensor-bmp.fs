@@ -1,8 +1,6 @@
 \ sensor board deployed with BMP280
 \   when reset with UART connected, it should drop into prompt
-\   otherwise init devices, slow down and periodically send readings
-
-\ WARNING not properly tuned yet - getting about 40uA consumption still
+\   otherwise init devices, sleep and periodically send readings
 
 include basis-sensor.fs
 
@@ -35,14 +33,24 @@ include ../flib/drivers/bmp280.fs
 
 
 : init-once ( -- )
-  tie-free-pins
+  unfree-pins
+  \ %00110000 dup $2A cbis! $29 cbic! \ i2c ($2A:P2DIR) ($29:P2OUT)
   radio-init
-  bme-init-sleep drop bme-calib
+  bme-init-sleep drop bme-calib bme-sleep
   0 ptype c! \ type is always zero for these sensors
+  ;
+
+: deinit-uart ( -- )
+  %110000 $1 cbic! \ disable USART interrupts ($1:IE2)
+  %110 dup $26 cbic! \ ($26:P1SEL)
+       dup $41 cbic! \ ($41:P1SEL2)
+       dup $22 cbis! \ ($22:P1DIR)
+           $21 cbic! \ ($21:P1OUT)
   ;
 
 : packet-prepare ( -- ) \ get all measurements (separated for testing)
   vcc \ get 1000*vdd
+  analog-off
   pbatt !
 
   bme-convert ms bme-data bme-sleep
@@ -65,5 +73,5 @@ include ../flib/drivers/bmp280.fs
     420 0 do 1000 ms loop
   again ;
 
-: init  unattended  init-once main ;
+: init  unattended  init-once deinit-uart main ;
 

@@ -51,14 +51,19 @@ The main downside here is the _price_.
 
 ## Structure
 
-The `g2553` and `fr2433` directories contain material which is only for the
-respective chips. `drivers` have some a bit higher level drivers which should
-be applicable more generally, as long as the base words are available.
+More-less like jcw's embello, and the parent dir:
 
-I mostly replaced constants with their values (space is tight); but in some
-I left the constants in. There is a simple python script in `templates`
-which takes one of these, and a bunch of files where the constants are defined,
-and produces code with the constants replaced.
+The `g2553` and `fr2433` directories contain material which is only for the
+respective chips - the "high-level" files. Most of the actual "meat" is
+in `flib`, and subdirectories:
+
+ * MCU specific words in the so-named subdirectories;
+ * `drivers` has some a bit higher level drivers which should be applicable
+   more generally, as long as the base words are available;
+ * `mecrisp` has files directly from the mecrisp tarball;
+ * `templates` has some files with constants in, and a python script which
+   can then produce constant-free versions (constants are replaced by
+   their values), so as to save a little bit of flash space.
 
 The `core` directory contains mecrisp hex files, to be flashed onto the chip.
 The `-xt1` versions require an external 32768Hz crystal to work.
@@ -72,6 +77,11 @@ assembler; on Arch Linux the package is `mas` in AUR.
 but the memory sizes are wrong, and some irq names are wrong.)
 
 
+Finally, note that there are a lot of `include`s in the files. You can use
+`../scripts/resolve_includes.py` to recursively resolve all the `include`s in
+a given file and produce a single file with everything in it.
+
+
 # Random notes
 
 ## Power consumption on MSP430G2553
@@ -82,7 +92,8 @@ with some basic init; btw without the init it was taking about 30uA.)
 
 Turns out it's all about the pins setup. They seem to need to be tied to
 something, floating really ups the consumption. Just making them all outputs
-on my bare board got the consumption to the expected 1.5uA.
+on my bare board got the consumption to the expected 1.5uA. But on my sensor
+board, I needed to tie them specifically _low_.
 
 
 [mecrisp]: https://mecrisp.sourceforge.net
