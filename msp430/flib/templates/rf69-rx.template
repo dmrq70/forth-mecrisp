@@ -1,8 +1,6 @@
 \ rf69 driver; RX part
 \ needs spi
 \ needs rf69-tx.fs
-\ generate constant-free source with:
-\ python replace-constants.py rf69-rx.fs rf69-constants.fs
 \ = 480 bytes flash
 
    0 variable rf.last  \ flag used to fetch RSSI only once per packet

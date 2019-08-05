@@ -1,7 +1,5 @@
 \ rf69 driver; TX part
 \ needs spi
-\ generate constant-free source with:
-\ python replace-constants.py rf69-tx.fs rf69-constants.fs
 \ = 1092 bytes flash
 
    0 variable rf.mode    \ last set chip mode
