@@ -37,13 +37,13 @@ include ../flib/g2553/i2c-bb-base.fs
 include ../flib/drivers/i2c-bb.fs
 
 : unfree-pins ( -- )
-  %00011001 dup $22 cbis! $21 cbic! \ for uart add %110 ($22:P1DIR) ($21:P1OUT)
-  %00001110 dup $2A cbis! $29 cbic! \ for i2c add %110000 ($2A:P2DIR) ($29:P2OUT)
+  %00011001 dup $22 ( P1DIR ) cbis! $21 ( P1OUT ) cbic! \ for uart add %110
+  %00001110 dup $2A ( P2DIR ) cbis! $29 ( P2OUT ) cbic! \ for i2c add %110000
   ;
 
 : analog-off ( -- )
-  %10 $1b0 bic! \ dis ENC \ ($1b0:ADC10CTL0)
-  %110000 $1b0 bic! \ dis REFON|ADC10ON \ ($1b0:ADC10CTL0)
+  %10 $1b0 ( ADC10CTL0 ) bic! \ dis ENC
+  %110000 $1b0 ( ADC10CTL0 ) bic! \ dis REFON|ADC10ON
   ;
 
 compiletoram

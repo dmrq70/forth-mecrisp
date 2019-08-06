@@ -1,8 +1,11 @@
-\ USB console for the bat board with F072
+\ USB console for F072
+
+\ 2019 flabbergast (public domain: https://unlicense.org/)
+\ https://git.drak.xyz/flabbergast/forth-mecrisp
 \ modelled after Jean-Claude Wippler's USB console for F103 boards
 \   in embello: https://git.jeelabs.org/jcw/embello
 
-$5000 eraseflashfrom  \ this must be loaded on top of a *clean* Mecrisp image!
+$5000 eraseflashfrom  \ this must be loaded on top of a *clean* Mecrisp RA image!
 cr
 compiletoflash
 

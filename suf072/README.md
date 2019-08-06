@@ -16,7 +16,7 @@ So, getting this on the board requires:
 1. Get a clean Mecrisp Stellaris on the board (using F072's built-in
    bootloader, either USART or DFU).
 2. Connect to the default USART console Mecrisp, and send over
-   `usbbase-bat-f072.fs` (with [folie], otherwise you'll need to manually
+   `usbbase-f072.fs` (with [folie], otherwise you'll need to manually
    resolve the `include`s).
 3. At this point, when you `reset` the board, no USART console shows up, and
    the device should enumerate as an USB ACM device, over which you should be

@@ -2,6 +2,8 @@
 \ adapted from jcw's embello for STM32F103
 \ adapted from mecrisp-stellaris 2.2.1a (GPL3)
 
+\ for F042 version swap lines marked "|F072|" for the ones with "|F042|"
+
 : chipid ( -- u1 u2 u3 3 )  \ unique chip ID as N values on the stack
   $1FFFF7AC @ $1FFFF7B0 @ $1FFFF7B4 @ 3 ;
 : hwid ( -- u )  \ a "fairly unique" hardware ID as single 32-bit int
@@ -9,7 +11,8 @@
 : flash-kb ( -- u )  \ return size of flash memory in KB
   $1FFFF7CC h@ ;
 : flash-pagesize ( addr - u )  \ return size of flash page at given address
-  drop 2048 ; \ f07x f09x ;  f03x f04x have 1024
+  drop 2048 ; \ |F072| (also f09x)
+\  drop 1024 ; \ |F042| (also f03x)
 
 : bit ( u -- u )  \ turn a bit position into a single-bit mask
   1 swap lshift  1-foldable ;
@@ -55,7 +58,8 @@ $40006C00 constant CRS
   24 bit rcc-cr bis!
   begin 25 bit rcc-cr bit@ until
   %10 rcc-cfgr bis!
-  %11 rcc-cfgr3 bis!  \ USART1 clocked from HSI
+  %11 rcc-cfgr3 bis!  \ |F072| USART1 clocked from HSI
+\  $1a1 $4000440C !  \ |F042| change USART2_BRR to match 48MHz
 ;
 
 : usb-clk ( -- )  \ enable HSI48, autotrim and set USB clock source

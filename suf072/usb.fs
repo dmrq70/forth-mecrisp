@@ -216,7 +216,7 @@ $40006000 constant USBMEM
   $42 usb-pma@ case
     $0100 of usb:dev     18 endof
     $0200 of usb:conf    $46 usb-pma@ endof
-          \ js: was 67 (issue is: first 9 bytes gets requested also separately)
+          \ js: was 67 (issue is: first 9 bytes get requested also separately)
     $0300 of usb:langid  4  endof
     $0301 of usb:vendor  40 endof
     $0302 of usb:product 36 endof
